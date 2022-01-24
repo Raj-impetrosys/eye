@@ -76,7 +76,7 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
                   print(bytes);
                 });
               },
-              child: Text("set")),
+              child: const Text("set")),
           GestureDetector(
               onTap: () {
                 eyeScannerController.startScan().then((value) {
@@ -94,10 +94,10 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
                 login(
                     userName: widget.userName,
                     password: widget.password,
-                    eyeImage: eyeScannerController.status,
+                    eyeImage: bytes!,
                     attendType: attendType);
               },
-              child: Text("Submit"))
+              child: const Text("Submit"))
         ],
       ),
     );

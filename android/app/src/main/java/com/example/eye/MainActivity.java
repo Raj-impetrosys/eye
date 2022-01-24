@@ -1,9 +1,14 @@
 package com.example.eye;
 
 import android.Manifest;
+import android.app.Activity;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.MediaScannerConnection;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -13,6 +18,7 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
 
 import com.mantra.mis100.IrisData;
 import com.mantra.mis100.MIS100;
@@ -46,14 +52,14 @@ public class MainActivity extends FlutterActivity implements MIS100Event {
     private static boolean isCaptureRunning = false;
     public static final String PERMISSION_WRITE_STORAGE = Manifest.permission.WRITE_EXTERNAL_STORAGE;
     public static final String PERMISSION_READ_STORAGE = Manifest.permission.READ_EXTERNAL_STORAGE;
-//    public static final String MANAGE_EXTERNAL_STORAGE = Manifest.permission.MANAGE_EXTERNAL_STORAGE;
+    public static final String MANAGE_EXTERNAL_STORAGE = Manifest.permission.MANAGE_EXTERNAL_STORAGE;
 
-    public static String[] Permission = new String[] { PERMISSION_WRITE_STORAGE, PERMISSION_READ_STORAGE };
+    public static String[] Permission = new String[] { PERMISSION_WRITE_STORAGE, PERMISSION_READ_STORAGE,MANAGE_EXTERNAL_STORAGE };
 
     @Override
     public void configureFlutterEngine(@NonNull FlutterEngine flutterEngine) {
         super.configureFlutterEngine(flutterEngine);
-        GeneratedPluginRegistrant.registerWith(flutterEngine);
+//        GeneratedPluginRegistrant.registerWith(flutterEngine);
 
     }
 
@@ -241,7 +247,7 @@ public class MainActivity extends FlutterActivity implements MIS100Event {
             isCaptureRunning = true;
             try {
                 IrisData irisData = new IrisData();
-                int quality = 40;
+                int quality = 70;
                 try {
                     quality = Integer.parseInt(edtQuality.getText().toString());
                 } catch (Exception e) {
@@ -262,7 +268,10 @@ public class MainActivity extends FlutterActivity implements MIS100Event {
 //                    final Bitmap bitmap = BitmapFactory.decodeByteArray(irisData.K7Image(), 0,
 //                            irisData.K7Image().length);
                     _bitmap = irisData.IRISImage();
-                    result.success(_bitmap);
+//                    result.success(_bitmap);
+                    runOnUiThread(() -> {
+                        result.success(irisData.IRISImage());
+                    });
 //                        DisplayIris(bitmap);
 
                     String log = "\nCapture Success"
@@ -284,8 +293,8 @@ public class MainActivity extends FlutterActivity implements MIS100Event {
                     SetData2(irisData);
                 }
             } catch (Exception ex) {
-                result.error("500",ex.toString(),"Exception");
-                ex.printStackTrace();
+//                result.error("500",ex.toString(),"Exception");
+//                ex.printStackTrace();
 //                    SetTextOnUIThread("Error");
             } finally {
                 isCaptureRunning = false;
@@ -293,6 +302,50 @@ public class MainActivity extends FlutterActivity implements MIS100Event {
         }).start();
 //        return  _bitmap;
     }
+
+//    private void StartSyncCapture(Result result) {
+//        new Thread(new Runnable() {
+//
+//            @Override
+//            public void run() {
+//                isCaptureRunning = true;
+//                try {
+//                    IrisData irisData = new IrisData();
+//                    int quality = 40;
+//                    try {
+//                        quality = Integer.parseInt(edtQuality.getText().toString());
+//                    } catch (Exception e) {
+//                    }
+//                    int timeout = 20000;
+//                    try {
+//                        timeout = Integer.parseInt(edtTimeOut.getText().toString());
+//                    } catch (Exception e) {
+//                    }
+//                    int ret = mis100.AutoCapture(irisData, quality, timeout);
+//                    if (ret != 0) {
+//                    } else {
+//                        final Bitmap bitmap = BitmapFactory.decodeByteArray(irisData.K7Image(), 0,
+//                                irisData.K7Image().length);
+//                        System.out.print(bitmap);
+////                        result.success(irisData.IRISImage());
+//                        runOnUiThread(() -> {
+//                            result.success(irisData.IRISImage());
+//                        });
+//                        String log = "\nCapture Success"
+//                                + "\nQuality :: " + irisData.Quality()
+//                                + "\nK7ImageLength :: " + irisData.K7Image().length
+//                                + "\nK7 Width :: " + irisData.K7ImageWidth()
+//                                + "\nK7 Height :: " + irisData.K7ImageHeight();
+////                        SetData2(irisData);
+//                    }
+//                } catch (Exception ex) {
+//                    ex.printStackTrace();
+//                } finally {
+//                    isCaptureRunning = false;
+//                }
+//            }
+//        }).start();
+//    }
 
     private void StopCapture(Result result) {
         try {
@@ -336,10 +389,93 @@ public class MainActivity extends FlutterActivity implements MIS100Event {
 //            }
 //        });
 //    }
+// Storage Permissions
+//private static final int REQUEST_EXTERNAL_STORAGE = 1;
+//    private static String[] PERMISSIONS_STORAGE = {
+////            if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.R){
+////        Manifest.permission.MANAGE_EXTERNAL_STORAGE,
+////    }
+//            Manifest.permission.MANAGE_EXTERNAL_STORAGE,
+//            Manifest.permission.READ_EXTERNAL_STORAGE,
+//            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+//    };
+//
+//    /**
+//     * Checks if the app has permission to write to device storage
+//     *
+//     * If the app does not has permission then the user will be prompted to grant permissions
+//     *
+//     * @param activity
+//     */
+//    public static void verifyStoragePermissions(Activity activity) {
+//        // Check if we have write permission
+//        int permission = ActivityCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+//
+//        if (permission != PackageManager.PERMISSION_GRANTED) {
+//            // We don't have permission so prompt the user
+//            ActivityCompat.requestPermissions(
+//                    activity,
+//                    PERMISSIONS_STORAGE,
+//                    REQUEST_EXTERNAL_STORAGE
+//            );
+//        }
+//    }
+
+    void createExternalStoragePublicPicture() {
+        // Create a path where we will place our picture in the user's
+        // public pictures directory.  Note that you should be careful about
+        // what you place here, since the user often manages these files.  For
+        // pictures and other media owned by the application, consider
+        // Context.getExternalMediaDir().
+        File path = Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES);
+        System.out.print(path);
+        File file = new File(path, "DemoPicture.jpg");
+
+        try {
+            // Make sure the Pictures directory exists.
+            path.mkdirs();
+
+            // Very simple code to copy a picture from the application's
+            // resource into the external file.  Note that this code does
+            // no error checking, and assumes the picture is small (does not
+            // try to copy it in chunks).  Note that if external storage is
+            // not currently mounted this will silently fail.
+//            InputStream is = getResources().openRawResource(R.drawable);
+//            OutputStream os = new FileOutputStream(file);
+//            byte[] data = new byte[is.available()];
+//            is.read(data);
+//            os.write(data);
+//            is.close();
+//            os.close();
+
+            // Tell the media scanner about the new file so that it is
+            // immediately available to the user.
+            MediaScannerConnection.scanFile(this,
+                    new String[] { file.toString() }, null,
+                    new MediaScannerConnection.OnScanCompletedListener() {
+                        public void onScanCompleted(String path, Uri uri) {
+                            Log.i("ExternalStorage", "Scanned " + path + ":");
+                            Log.i("ExternalStorage", "-> uri=" + uri);
+                        }
+                    });
+        } catch (Exception e) {
+            // Unable to create file, likely because external storage is
+            // not currently mounted.
+            Log.w("ExternalStorage", "Error writing " + file, e);
+        }
+    }
+
 
     private void WriteFile(String filename, byte[] bytes) {
+//        verifyStoragePermissions(this);
+//        createExternalStoragePublicPicture();
+
         try {
+//            String path = Environment.getExternalStorageDirectory()
             String path = Environment.getExternalStorageDirectory()
+//            String path = Environment.getExternalStoragePublicDirectory(
+//                    Environment.DIRECTORY_PICTURES)
                     + "//IrisData";
             File file = new File(path);
             if (!file.exists()) {

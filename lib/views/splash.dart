@@ -26,18 +26,18 @@ class _SplashState extends State<Splash> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Image.asset(
-              'assets/images/splash.png',
+              'assets/images/logo-trans-1024.png',
               // height: 200,
-              width: 300,
+              width: 250,
               // scale: 2,
             ),
             const Text(
               "IRIS",
               style: TextStyle(fontSize: 40, fontWeight: FontWeight.w800),
             ),
-            Text(
+            const Text(
               "SCANNER",
-              style: TextStyle(fontSize: 16, color: Colors.blue[900]),
+              style: TextStyle(fontSize: 16, color: Color(0xff32426E)),
             )
           ],
         ),

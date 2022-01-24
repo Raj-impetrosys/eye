@@ -2,17 +2,20 @@
     package="com.example.eye"
     xmlns:tools="http://schemas.android.com/tools">
     <uses-permission android:name="android.permission.USB_PERMISSION" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="29"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
-        tools:ignore="ScopedStorage"/>
+    <uses-permission
+        android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
+        android:minSdkVersion="30" />
     <uses-permission android:name="android.permission.ACCESS_MEDIA_LOCATION" />
     <uses-feature android:name="android.hardware.usb.host" />
    <application
         android:label="IRIS Eye Scanner"
-        android:icon="@mipmap/ic_launcher"
-       android:fullBackupOnly="true"
-       android:allowBackup="true">
+        android:icon="@mipmap/launcher_icon">
+<!--       android:fullBackupOnly="true"-->
+<!--       android:allowBackup="true"-->
+<!--       >-->
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"

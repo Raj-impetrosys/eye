@@ -1,4 +1,5 @@
 import 'package:eye/globals/app_constants.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:eye/views/splash.dart';
 import 'package:flutter/material.dart';
 
@@ -15,7 +16,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: AppConstants.projectName,
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.blue,textTheme: GoogleFonts.poppinsTextTheme()
       ),
       home: const Splash(),
     );
