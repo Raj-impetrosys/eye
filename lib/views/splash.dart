@@ -1,6 +1,4 @@
-import 'dart:async';
-import 'package:eye/views/login_screen.dart';
-import 'package:flutter/material.dart';
+import 'package:eye/globals/index.dart';
 
 class Splash extends StatefulWidget {
   const Splash({Key? key}) : super(key: key);
@@ -12,9 +10,12 @@ class Splash extends StatefulWidget {
 class _SplashState extends State<Splash> {
   @override
   void initState() {
-    Future.delayed(const Duration(seconds: 3)).whenComplete(() =>
-        Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => const LoginScreen())));
+    SharedPreference.getIsLogin().then((isLogin){
+      Future.delayed(const Duration(seconds: 3)).whenComplete(() =>
+          Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (context) => (isLogin)?
+              const DashBoardScreen():const LoginScreen())));
+    });
     super.initState();
   }
 

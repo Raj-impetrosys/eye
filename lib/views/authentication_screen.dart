@@ -1,16 +1,13 @@
-import 'dart:typed_data';
-
-import 'package:eye/controllers/eye_scanner_controller.dart';
-import 'package:eye/globals/widgets/radio_button.dart';
-import 'package:eye/services/api/login_api.dart';
-import 'package:flutter/material.dart';
+import 'package:eye/globals/index.dart';
+import 'package:eye/globals/widgets/custom_btn.dart';
+import 'package:eye/globals/widgets/textfield.dart';
 
 enum AttendType { goingIn, goingOut }
 
 class AuthenticationScreen extends StatefulWidget {
-  final String userName, password;
-  const AuthenticationScreen(
-      {Key? key, required this.userName, required this.password})
+  // final String userName, password;
+  final int userId;
+  const AuthenticationScreen({Key? key, required this.userId})
       : super(key: key);
 
   @override
@@ -23,6 +20,10 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
 
   Uint8List? bytes;
 
+  TextEditingController employeeName = TextEditingController();
+
+  bool isLoading = false;
+
   @override
   void initState() {
     eyeScannerController.init();
@@ -32,73 +33,118 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Authentication"),
+      appBar: const CustomAppBar(
+        title: 'Authentication',
       ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Row(
-            children: [
-              radioButton(
-                  text: "In",
-                  value: AttendType.goingIn,
-                  groupValue: attendType,
-                  onChanged: (value) {
+      body: SafeArea(
+        child: Stack(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Row(
+                    children: [
+                      radioButton(
+                          text: "In",
+                          value: AttendType.goingIn,
+                          groupValue: attendType,
+                          onChanged: (value) {
+                            setState(() {
+                              attendType = value;
+                            });
+                          }),
+                      const SizedBox(
+                        width: 5,
+                      ),
+                      radioButton(
+                          text: "Out",
+                          value: AttendType.goingOut,
+                          groupValue: attendType,
+                          onChanged: (value) {
+                            setState(() {
+                              attendType = value;
+                            });
+                          }),
+                    ],
+                  ),
+                  // customTextField(suffixIcon: 'person-100', controller: employeeName, fieldName: 'Employee Name'),
+                  // Text(eyeScannerController.status),
+                  (bytes != null)
+                      ? Image.memory(
+                          bytes!,
+                          width: 200,
+                          height: 200,
+                        )
+                      : Image.asset("assets/images/user-500.png",width: 200,),
+                  // ElevatedButton(
+                  //     onPressed: () {
+                  //       setState(() {
+                  //         print(bytes);
+                  //       });
+                  //     },
+                  //     child: const Text("set")),
+                  Row(mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      GestureDetector(
+                          onTap: () {
+                            eyeScannerController.startScan().then((value) {
+                              setState(() {
+                                bytes = value;
+                              });
+                            });
+                          },
+                          child: Image.asset(
+                            "assets/images/scan-btn-100.png",
+                            width: 80,
+                          )),
+                      SizedBox(width: 10,),
+                      GestureDetector(
+                          onTap: () {
+                            eyeScannerController.stopScan().then((value) {
+                              setState(() {
+                                bytes = value;
+                              });
+                            });
+                          },
+                          child: Image.asset(
+                            "assets/images/stop-scan-btn-100.png",
+                            width: 80,
+                          )),
+                    ],
+                  ),
+                  customBtn(btnText: 'Submit', onTap: () {
                     setState(() {
-                      attendType = value;
+                      isLoading = true;
                     });
-                  }),
-              const SizedBox(
-                width: 5,
+                          employeeAuth(
+                              context: context,
+                              userId: widget.userId,
+                              eyeImage: bytes!,
+                              attendType:
+                                  (attendType == AttendType.goingIn) ? "in" : "out").whenComplete(() {
+                            setState(() {
+                              isLoading = false;
+                            });
+                          });
+                  })
+                  // ElevatedButton(
+                  //     onPressed: () {
+                  //       employeeAuth(
+                  //           context: context,
+                  //           userId: widget.userId,
+                  //           eyeImage: bytes!,
+                  //           attendType:
+                  //               (attendType == AttendType.goingIn) ? "in" : "out");
+                  //     },
+                  //     child: const Text("Submit"))
+                ],
               ),
-              radioButton(
-                  text: "Out",
-                  value: AttendType.goingOut,
-                  groupValue: attendType,
-                  onChanged: (value) {
-                    setState(() {
-                      attendType = value;
-                    });
-                  }),
-            ],
-          ),
-          Text(eyeScannerController.status),
-          if (bytes != null)
-            Image.memory(
-              bytes!,
-              width: 200,
-              height: 200,
             ),
-          ElevatedButton(
-              onPressed: () {
-                setState(() {
-                  print(bytes);
-                });
-              },
-              child: const Text("set")),
-          GestureDetector(
-              onTap: () {
-                eyeScannerController.startScan().then((value) {
-                  setState(() {
-                    bytes = value;
-                  });
-                });
-              },
-              child: Image.asset(
-                "assets/images/scan_btn.png",
-                width: 80,
-              )),
-          ElevatedButton(
-              onPressed: () {
-                login(
-                    userName: widget.userName,
-                    password: widget.password,
-                    eyeImage: bytes!,
-                    attendType: attendType);
-              },
-              child: const Text("Submit"))
-        ],
+            if(isLoading)loader()
+          ],
+        ),
       ),
     );
   }

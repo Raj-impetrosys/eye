@@ -1,6 +1,4 @@
-import 'dart:typed_data';
-
-import 'package:flutter/services.dart';
+import 'package:eye/globals/index.dart';
 
 class EyeScannerController {
   String status = "no status";

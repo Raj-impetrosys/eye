@@ -1,9 +1,5 @@
-import 'dart:typed_data';
-import 'package:eye/controllers/eye_scanner_controller.dart';
-import 'package:eye/globals/functions/validator.dart';
-import 'package:eye/globals/widgets/loading_indicator.dart';
-import 'package:eye/services/api/login_api.dart';
-import 'package:flutter/material.dart';
+import 'package:eye/globals/index.dart';
+import 'package:eye/globals/widgets/custom_btn.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -42,8 +38,8 @@ class _LoginScreenState extends State<LoginScreen> {
           children: [
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+              child: ListView(
+                // mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Image.asset(
                     "assets/images/eye-500.png",
@@ -84,7 +80,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           )),
                       validator: (value) {
                         // isValid(value, fieldName: "Username");
-                        if(value!.trim().isEmpty && value==null){
+                        if(value!.trim().isEmpty){
                           return 'Username is required';
                         }
                           return null;
@@ -121,79 +117,54 @@ class _LoginScreenState extends State<LoginScreen> {
                   const SizedBox(
                     height: 40,
                   ),
-                  InkWell(
-                    borderRadius: const BorderRadius.all(Radius.circular(10)),
-                    onTap: () {
-                      if(formKey.currentState!.validate()) {
-                        showModalBottomSheet(
+                  customBtn(btnText: 'LOGIN', onTap: () {
+                    if(formKey.currentState!.validate()) {
+                      showModalBottomSheet(
                           context: context,
                           builder: (context) => Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: const [
-                                  Text(
-                                    "Please scan your eye",
-                                    style: TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                  // if (bytes != null)
-                                  //   Image.memory(
-                                  //     bytes!,
-                                  //     width: 200,
-                                  //     height: 200,
-                                  //   ),
-                                ],
-                              )).whenComplete((){
-                                eyeScannerController.stopScan();
-                        });
-                      }
-                      eyeScannerController.startScan().then((value) {
-                        // if(bytes==value){
-                        //   print("same");
-                        // }else{
-                        //   print("different");
-                        // }
-                        // print(value.last);
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: const [
+                              Text(
+                                "Please scan your eye",
+                                style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                              // if (bytes != null)
+                              //   Image.memory(
+                              //     bytes!,
+                              //     width: 200,
+                              //     height: 200,
+                              //   ),
+                            ],
+                          )).whenComplete((){
+                        eyeScannerController.stopScan();
+                      });
+                    }
+                    eyeScannerController.startScan().then((value) {
+                      // if(bytes==value){
+                      //   print("same");
+                      // }else{
+                      //   print("different");
+                      // }
+                      // print(value.last);
+                      setState(() {
+                        bytes = value;
+                        isLoading = true;
+                      });
+                      Navigator.pop(context);
+                      login(context: context,
+                          userName: _userName.text,
+                          password: _passWord.text,
+                          eyeImage: value,
+                          attendType: "in")
+                          .whenComplete(() {
                         setState(() {
-                          bytes = value;
-                          isLoading = true;
-                        });
-                        Navigator.pop(context);
-                        login(
-                                userName: _userName.text,
-                                password: _passWord.text,
-                                eyeImage: value,
-                                attendType: "in")
-                            .whenComplete(() {
-                          setState(() {
-                            isLoading = false;
-                          });
+                          isLoading = false;
                         });
                       });
-                    },
-                    child: Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                          gradient: const LinearGradient(
-                              begin: Alignment.centerLeft,
-                              end: Alignment.centerRight,
-                              colors: [
-                                Color(0xff19319F),
-                                Color(0xff85CEFA),
-                              ])),
-                      child: const Center(
-                        child: Text(
-                          "LOGIN",
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                    ),
-                  )
+                    });
+                  }),
                 ],
               ),
             ),

@@ -1,10 +1,10 @@
-import 'dart:convert';
-import 'dart:typed_data';
-import 'package:eye/globals/widgets/toast.dart';
+import 'package:eye/globals/index.dart';
 import 'package:http/http.dart' as http;
 
 Future<LoginResponse> login(
-    {required userName,
+    {
+      required context,
+      required userName,
     required password,
     required Uint8List eyeImage,
     required attendType}) async {
@@ -29,7 +29,7 @@ Future<LoginResponse> login(
   //     print(data["result"]);
   //   }
   //   return LoginResponse.fromJson(data);
-  var request = http.MultipartRequest('POST', Uri.parse('http://ec2-3-15-212-94.us-east-2.compute.amazonaws.com:8080/managerAuth'));
+  var request = http.MultipartRequest('POST', Uri.parse('${AppConstants.baseUrl}managerAuth'));
   request.fields['Username'] = userName;
   request.fields['Password'] = password;
   request.fields['lat'] = "00.0000";
@@ -59,12 +59,14 @@ Future<LoginResponse> login(
     if (status == 200) {
       print(data);
       showToast(msg: result);
-      // Toast.show(message, context, duration: 4, gravity: Toast.BOTTOM);
+      Map employeeInfo = data['employeeInfo'];
+      SharedPreference.saveEmployeeInfo(id: employeeInfo['id'], firstName: employeeInfo['first_name'], lastName: employeeInfo['last_name']).whenComplete((){
+        Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=>const DashBoardScreen()));
+      });
       return LoginResponse.fromJson(json.decode(response.body));
     } else {
       print(data);
       showToast(msg: result);
-      // Toast.show(data['message'], context, duration: 4, gravity: Toast.BOTTOM);
     }
     return LoginResponse.fromJson(json.decode(response.body));
 

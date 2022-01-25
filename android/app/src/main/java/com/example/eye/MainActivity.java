@@ -217,8 +217,8 @@ public class MainActivity extends FlutterActivity implements MIS100Event {
             int ret = mis100.Init();
             System.out.print(ret);
             if (ret != 0) {
-                Toast.makeText(this, ret,
-                        Toast.LENGTH_LONG).show();
+//                Toast.makeText(this, ret,
+//                        Toast.LENGTH_LONG).show();
                 // SetTextOnUIThread(mis100.GetErrorMsg(ret));
             } else {
 //                showSuccessLog();
@@ -234,8 +234,8 @@ public class MainActivity extends FlutterActivity implements MIS100Event {
 //                        Toast.LENGTH_LONG).show();
             }
         } catch (Exception ex) {
-            Toast.makeText(this, ex.getLocalizedMessage(),
-                    Toast.LENGTH_LONG).show();
+//            Toast.makeText(this, ex.getLocalizedMessage(),
+//                    Toast.LENGTH_LONG).show();
             // SetTextOnUIThread("Init failed, unhandled exception");
         }
          return "info";
@@ -247,14 +247,14 @@ public class MainActivity extends FlutterActivity implements MIS100Event {
             isCaptureRunning = true;
             try {
                 IrisData irisData = new IrisData();
-                int quality = 70;
+                int quality = 60;
                 try {
                     quality = Integer.parseInt(edtQuality.getText().toString());
                 } catch (Exception e) {
 //                    result.error("400",e.toString(),"quality error");
 //                        Toast.makeText(this, e.toString(),Toast.LENGTH_LONG).show();
                 }
-                int timeout = 20000;
+                int timeout = 40000;
                 try {
                     timeout = Integer.parseInt(edtTimeOut.getText().toString());
                 } catch (Exception e) {
@@ -364,15 +364,15 @@ public class MainActivity extends FlutterActivity implements MIS100Event {
             try {
                 assert mis100 != null;
                 int ret = mis100.UnInit();
-                Toast.makeText(this, ret,
-                        Toast.LENGTH_LONG).show();
+//                Toast.makeText(this, ret,
+//                        Toast.LENGTH_LONG).show();
                 if (ret != 0) {
-                    Toast.makeText(this, "error",
-                            Toast.LENGTH_LONG).show();
+//                    Toast.makeText(this, "error",
+//                            Toast.LENGTH_LONG).show();
 //                    SetTextOnUIThread(mis100.GetErrorMsg(ret));
                 } else {
-                    Toast.makeText(this, "Uninit Success",
-                            Toast.LENGTH_LONG).show();
+//                    Toast.makeText(this, "Uninit Success",
+//                            Toast.LENGTH_LONG).show();
 //                    SetLogOnUIThread("Uninit Success");
 //                    SetTextOnUIThread("Uninit Success");
                 }
