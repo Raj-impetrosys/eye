@@ -13,7 +13,8 @@ Widget logoutBtn(context)=>IconButton(
     // if(formKey.currentState!.validate()) {
       showModalBottomSheet(
           context: context,
-          builder: (context) => Column(
+          builder: (context) =>
+              Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: const [
               Text(

@@ -3,11 +3,12 @@ import 'package:http/http.dart' as http;
 
 Future<ManagerLogoutResponse> logOut(
     {required context, required userId, required Uint8List eyeImage}) async {
+  var location = await getLocation();
   var request = http.MultipartRequest(
       'POST', Uri.parse('${AppConstants.baseUrl}managerlogout'));
   request.fields['userId'] = "$userId";
-  request.fields['lat'] = "00.0000";
-  request.fields['long'] = "00.0000";
+  request.fields['lat'] = location.latitude.toString();
+  request.fields['long'] = location.longitude.toString();
   request.fields['attendType'] = 'out';
   // request.files.add(await http.MultipartFile.fromPath('profilepic', _image.path,
   //     filename: _image.path.split('/').last));

@@ -7,10 +7,11 @@ Future<EmployeeAuthResponse> employeeAuth(
       required userId,
     required Uint8List eyeImage,
     required attendType}) async {
+  var location = await getLocation();
   var request = http.MultipartRequest('POST', Uri.parse('${AppConstants.baseUrl}employeeAuth'));
   request.fields['userId'] = "$userId";
-  request.fields['lat'] = "00.0000";
-  request.fields['long'] = "00.0000";
+  request.fields['lat'] = location.latitude.toString();
+  request.fields['long'] = location.longitude.toString();
   request.fields['attendType'] = attendType;
   // request.files.add(await http.MultipartFile.fromPath('profilepic', _image.path,
   //     filename: _image.path.split('/').last));

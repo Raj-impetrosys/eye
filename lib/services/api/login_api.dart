@@ -8,32 +8,12 @@ Future<LoginResponse> login(
     required password,
     required Uint8List eyeImage,
     required attendType}) async {
-  // var response = await http.post(
-  //     Uri.parse(
-  //         "http://ec2-3-15-212-94.us-east-2.compute.amazonaws.com:8080/managerAuth"),
-  //     body: {
-  //       "Username": "ss",
-  //       "Password": "123",
-  //       "eyeImage": "",
-  //       "lat": "00.0000",
-  //       "long": "00.0000",
-  //       "attendType": "in"
-  //     });
-  //
-  // if (response.statusCode == 200) {
-  //   var data = json.decode(response.body);
-  //   print(data.toString());
-  //   if (data['statusCode'] == 200) {
-  //     print(data["result"]);
-  //   } else {
-  //     print(data["result"]);
-  //   }
-  //   return LoginResponse.fromJson(data);
+  var location = await getLocation();
   var request = http.MultipartRequest('POST', Uri.parse('${AppConstants.baseUrl}managerAuth'));
   request.fields['Username'] = userName;
   request.fields['Password'] = password;
-  request.fields['lat'] = "00.0000";
-  request.fields['long'] = "00.0000";
+  request.fields['lat'] = location.latitude.toString();
+  request.fields['long'] = location.longitude.toString();
   request.fields['attendType'] = 'in';
   // request.files.add(await http.MultipartFile.fromPath('profilepic', _image.path,
   //     filename: _image.path.split('/').last));

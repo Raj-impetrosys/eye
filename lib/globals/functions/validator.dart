@@ -1,7 +1,6 @@
 String? isValid(value,{required fieldName}){
-    if(value!.trim().isEmpty && value==null){
+    if(value!.trim().isEmpty){
       return '$fieldName is required';
-    }else{
-      return null;
     }
+      return null;
 }
