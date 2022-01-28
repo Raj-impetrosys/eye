@@ -1,5 +1,7 @@
 import 'package:eye/globals/index.dart';
 
+import 'get_employee_jobs_screen.dart';
+
 class DashBoardScreen extends StatefulWidget {
   const DashBoardScreen({Key? key}) : super(key: key);
 
@@ -98,9 +100,17 @@ class _DashBoardScreenState extends State<DashBoardScreen> {
                             title: 'Employee List',
                             image: 'menu_employee_list'),
                       ),
-                      menuItem(
-                          title: 'IRIS Enrolment',
-                          image: 'menu_iris_enrolment'),
+                      InkWell(
+                        borderRadius: BorderRadius.circular(10),
+                        onTap: () {
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (BuildContext context) =>
+                              const GetEmployeeJobsScreen()));
+                        },
+                        child: menuItem(
+                            title: 'Get Employee Jobs',
+                            image: 'menu_iris_enrolment'),
+                      ),
                     ],
                   ),
                   Row(

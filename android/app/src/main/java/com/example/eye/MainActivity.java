@@ -1,14 +1,11 @@
 package com.example.eye;
 
 import android.Manifest;
-import android.app.Activity;
-import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -32,7 +29,7 @@ import io.flutter.embedding.android.FlutterActivity;
 import io.flutter.embedding.engine.FlutterEngine;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.Result;
-import io.flutter.plugins.GeneratedPluginRegistrant;
+//import io.flutter.plugins.GeneratedPluginRegistrant;
 public class MainActivity extends FlutterActivity implements MIS100Event {
 
     ImageView imgIris;
@@ -364,8 +361,6 @@ public class MainActivity extends FlutterActivity implements MIS100Event {
             try {
                 assert mis100 != null;
                 int ret = mis100.UnInit();
-//                Toast.makeText(this, ret,
-//                        Toast.LENGTH_LONG).show();
                 if (ret != 0) {
 //                    Toast.makeText(this, "error",
 //                            Toast.LENGTH_LONG).show();
