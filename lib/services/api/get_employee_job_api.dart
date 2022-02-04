@@ -1,16 +1,12 @@
 import 'package:eye/globals/index.dart';
-import 'package:eye/views/get_employee_jobs_screen.dart';
 import 'package:http/http.dart' as http;
 
-Future<GetEmployeeJobResponse> getEmployeeJob({required context, required int employeeId}) async {
-  int? managerId =await SharedPreference.getUserId();
+Future<GetEmployeeJobResponse> getEmployeeJob(
+    {required context, required int employeeId}) async {
+  int? managerId = await SharedPreference.getUserId();
   var response = await http.post(
-      Uri.parse(
-          "${AppConstants.baseUrl}getemployeejobs"),
-  body: {
-    "employee_id": "$employeeId",
-    "manager_id": "$managerId"
-  });
+      Uri.parse("${AppConstants.baseUrl}getemployeejobs"),
+      body: {"employee_id": "$employeeId", "manager_id": "$managerId"});
 
   if (response.statusCode == 200) {
     var data = json.decode(response.body);
@@ -31,7 +27,6 @@ Future<GetEmployeeJobResponse> getEmployeeJob({required context, required int em
     //   showToast(msg: result);
     // }
     return GetEmployeeJobResponse.fromJson(data);
-
   } else {
     // showToast(msg: response.body);
     throw Exception(response.body);
@@ -69,23 +64,26 @@ class GetEmployeeJobResponse {
   final String result;
   final int statuscode;
 
-  factory GetEmployeeJobResponse.fromRawJson(String str) => GetEmployeeJobResponse.fromJson(json.decode(str));
+  factory GetEmployeeJobResponse.fromRawJson(String str) =>
+      GetEmployeeJobResponse.fromJson(json.decode(str));
 
   String toRawJson() => json.encode(toJson());
 
-  factory GetEmployeeJobResponse.fromJson(Map<String, dynamic> json) => GetEmployeeJobResponse(
-    details: List<Detail>.from(json["details"].map((x) => Detail.fromJson(x))),
-    responseStatus: json["responseStatus"],
-    result: json["result"],
-    statuscode: json["statuscode"],
-  );
+  factory GetEmployeeJobResponse.fromJson(Map<String, dynamic> json) =>
+      GetEmployeeJobResponse(
+        details:
+            List<Detail>.from(json["details"].map((x) => Detail.fromJson(x))),
+        responseStatus: json["responseStatus"],
+        result: json["result"],
+        statuscode: json["statuscode"],
+      );
 
   Map<String, dynamic> toJson() => {
-    "details": List<dynamic>.from(details.map((x) => x.toJson())),
-    "responseStatus": responseStatus,
-    "result": result,
-    "statuscode": statuscode,
-  };
+        "details": List<dynamic>.from(details.map((x) => x.toJson())),
+        "responseStatus": responseStatus,
+        "result": result,
+        "statuscode": statuscode,
+      };
 }
 
 class Detail {
@@ -116,26 +114,26 @@ class Detail {
   String toRawJson() => json.encode(toJson());
 
   factory Detail.fromJson(Map<String, dynamic> json) => Detail(
-    city: json["city"],
-    endDate: json["end_date"],
-    jobDescription: json["job_description"],
-    jobDurationInDays: json["job_duration_in_days"],
-    jobId: json["job_id"],
-    jobName: json["job_name"],
-    mandal: json["mandal"],
-    startDate: json["start_date"],
-    state: json["state"],
-  );
+        city: json["city"],
+        endDate: json["end_date"],
+        jobDescription: json["job_description"],
+        jobDurationInDays: json["job_duration_in_days"],
+        jobId: json["job_id"],
+        jobName: json["job_name"],
+        mandal: json["mandal"],
+        startDate: json["start_date"],
+        state: json["state"],
+      );
 
   Map<String, dynamic> toJson() => {
-    "city": city,
-    "end_date": endDate,
-    "job_description": jobDescription,
-    "job_duration_in_days": jobDurationInDays,
-    "job_id": jobId,
-    "job_name": jobName,
-    "mandal": mandal,
-    "start_date": startDate,
-    "state": state,
-  };
+        "city": city,
+        "end_date": endDate,
+        "job_description": jobDescription,
+        "job_duration_in_days": jobDurationInDays,
+        "job_id": jobId,
+        "job_name": jobName,
+        "mandal": mandal,
+        "start_date": startDate,
+        "state": state,
+      };
 }

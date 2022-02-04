@@ -4,7 +4,19 @@ class EyeScannerController {
   String status = "no status";
   Uint8List? bytes;
 
-  static const platform = MethodChannel('irisChannel');
+  static const MethodChannel platform = MethodChannel('irisChannel');
+  static const EventChannel messageChannel = EventChannel('eventChannelStream');
+
+  // Stream<String> get messageStream async* {
+  //   await for (String message
+  //       in messageChannel.receiveBroadcastStream().map((message) => message)) {
+  //     yield message;
+  //   }
+  // }
+
+  // Stream<dynamic> get getEvents {
+  //   return messageChannel.receiveBroadcastStream().cast();
+  // }
 
   init() async {
     await platform.invokeMethod('init').then((value) {

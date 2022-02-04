@@ -1,3 +1,4 @@
+import 'package:eye/globals/functions/on_back_button_pressed.dart';
 import 'package:eye/globals/index.dart';
 
 class HomePage extends StatefulWidget {
@@ -76,55 +77,58 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("MIS100V2"),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              status.toString(),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                init();
-              },
-              child: const Text("init"),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                getDeviceInfo();
-              },
-              child: const Text("getDeviceInfo"),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                startScan();
-              },
-              child: const Text("startScan"),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                stopScan();
-              },
-              child: const Text("stopScan"),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                unInit();
-              },
-              child: const Text("unInit"),
-            ),
-          ],
+    return WillPopScope(
+      onWillPop: () => onBackButtonPressed(context),
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text("MIS100V2"),
         ),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Text(
+                status.toString(),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  init();
+                },
+                child: const Text("init"),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  getDeviceInfo();
+                },
+                child: const Text("getDeviceInfo"),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  startScan();
+                },
+                child: const Text("startScan"),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  stopScan();
+                },
+                child: const Text("stopScan"),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  unInit();
+                },
+                child: const Text("unInit"),
+              ),
+            ],
+          ),
+        ),
+        // floatingActionButton: FloatingActionButton(
+        //   onPressed: _incrementCounter,
+        //   tooltip: 'Increment',
+        //   child: const Icon(Icons.add),
+        // ), // This trailing comma makes auto-formatting nicer for build methods.
       ),
-      // floatingActionButton: FloatingActionButton(
-      //   onPressed: _incrementCounter,
-      //   tooltip: 'Increment',
-      //   child: const Icon(Icons.add),
-      // ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }

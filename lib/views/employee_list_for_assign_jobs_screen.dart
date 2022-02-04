@@ -1,14 +1,17 @@
 import 'package:eye/globals/index.dart';
 import 'package:eye/services/api/get_manager_employees_api.dart';
+import 'package:eye/views/job_information_screen.dart';
 
-class EmployeeListScreen extends StatefulWidget {
-  const EmployeeListScreen({Key? key}) : super(key: key);
+class EmployeeListForAssignJobsScreen extends StatefulWidget {
+  const EmployeeListForAssignJobsScreen({Key? key}) : super(key: key);
 
   @override
-  State<EmployeeListScreen> createState() => _EmployeeListScreenState();
+  State<EmployeeListForAssignJobsScreen> createState() =>
+      _EmployeeListForAssignJobsScreenState();
 }
 
-class _EmployeeListScreenState extends State<EmployeeListScreen> {
+class _EmployeeListForAssignJobsScreenState
+    extends State<EmployeeListForAssignJobsScreen> {
   late Future<ManagerEmployeesResponse> getEmployeeListApi;
 
   @override
@@ -21,7 +24,7 @@ class _EmployeeListScreenState extends State<EmployeeListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const CustomAppBar(
-        title: 'Employee List',
+        title: 'Assign Jobs',
       ),
       body: SafeArea(
         child: FutureBuilder(
@@ -55,8 +58,8 @@ class _EmployeeListScreenState extends State<EmployeeListScreen> {
         child: ListTile(
           onTap: () {
             Navigator.of(context).push(MaterialPageRoute(
-                builder: (context) => AuthenticationScreen(
-                      userId: employee.id,
+                builder: (context) => GetJobInformation(
+                      employee: employee,
                     )));
           },
           leading: CircleAvatar(

@@ -16,8 +16,7 @@ class _BottomSheetScreenState extends State<BottomSheetScreen> {
       width: width,
       padding: const EdgeInsets.all(10),
       decoration: const BoxDecoration(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20))
-      ),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
@@ -28,17 +27,19 @@ class _BottomSheetScreenState extends State<BottomSheetScreen> {
             color: Colors.grey,
           ),
           const Text(
-            "Please scan your eye",
-            style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold),
+            "Scanning started...",
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
-          (widget.bytes != null)?
-            Image.memory(
-              widget.bytes!,
-              width: 200,
-              height: 200,
-            ):Image.asset('assets/images/user-500.png',width: 200,),
+          (widget.bytes != null)
+              ? Image.memory(
+                  widget.bytes!,
+                  width: 200,
+                  height: 200,
+                )
+              : Image.asset(
+                  'assets/images/user-500.png',
+                  width: 200,
+                ),
         ],
       ),
     );

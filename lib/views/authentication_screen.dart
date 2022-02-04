@@ -1,6 +1,5 @@
 import 'package:eye/globals/index.dart';
 import 'package:eye/globals/widgets/custom_btn.dart';
-import 'package:eye/globals/widgets/textfield.dart';
 
 enum AttendType { goingIn, goingOut }
 
@@ -23,10 +22,34 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
   TextEditingController employeeName = TextEditingController();
 
   bool isLoading = false;
+  Uint8List? event;
 
   @override
   void initState() {
     eyeScannerController.init();
+    EyeScannerController.messageChannel
+        .receiveBroadcastStream()
+        .listen((event) {
+      print("event: $event");
+      setState(() {
+        this.event = event;
+      });
+    });
+
+    // eyeScannerController.getEvents.listen((event) {
+    //   print("event: $event");
+    //   setState(() {
+    //     this.event = event.toString();
+    //   });
+    // });
+
+    // eyeScannerController.messageStream.listen((event) {
+    //   print(event);
+    //   setState(() {
+    //     this.event = event.toString();
+    //   });
+    //   showToast(msg: event);
+    // });
     super.initState();
   }
 
@@ -70,14 +93,27 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
                     ],
                   ),
                   // customTextField(suffixIcon: 'person-100', controller: employeeName, fieldName: 'Employee Name'),
-                  // Text(eyeScannerController.status),
+                  (event != null)
+                      ? Image.memory(
+                          event!,
+                          width: 200,
+                          height: 200,
+                        )
+                      : Image.asset(
+                          "assets/images/user-500.png",
+                          width: 50,
+                        ),
+                  // Text(event),
                   (bytes != null)
                       ? Image.memory(
                           bytes!,
                           width: 200,
                           height: 200,
                         )
-                      : Image.asset("assets/images/user-500.png",width: 200,),
+                      : Image.asset(
+                          "assets/images/user-500.png",
+                          width: 200,
+                        ),
                   // ElevatedButton(
                   //     onPressed: () {
                   //       setState(() {
@@ -85,7 +121,8 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
                   //       });
                   //     },
                   //     child: const Text("set")),
-                  Row(mainAxisAlignment: MainAxisAlignment.center,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       GestureDetector(
                           onTap: () {
@@ -99,7 +136,9 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
                             "assets/images/scan-btn-100.png",
                             width: 80,
                           )),
-                      SizedBox(width: 10,),
+                      SizedBox(
+                        width: 10,
+                      ),
                       GestureDetector(
                           onTap: () {
                             eyeScannerController.stopScan().then((value) {
@@ -114,21 +153,25 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
                           )),
                     ],
                   ),
-                  customBtn(btnText: 'Submit', onTap: () {
-                    setState(() {
-                      isLoading = true;
-                    });
-                          employeeAuth(
-                              context: context,
-                              userId: widget.userId,
-                              eyeImage: bytes!,
-                              attendType:
-                                  (attendType == AttendType.goingIn) ? "in" : "out").whenComplete(() {
-                            setState(() {
-                              isLoading = false;
-                            });
+                  customBtn(
+                      btnText: 'Submit',
+                      onTap: () {
+                        setState(() {
+                          isLoading = true;
+                        });
+                        employeeAuth(
+                                context: context,
+                                userId: widget.userId,
+                                eyeImage: bytes!,
+                                attendType: (attendType == AttendType.goingIn)
+                                    ? "in"
+                                    : "out")
+                            .whenComplete(() {
+                          setState(() {
+                            isLoading = false;
                           });
-                  })
+                        });
+                      })
                   // ElevatedButton(
                   //     onPressed: () {
                   //       employeeAuth(
@@ -142,7 +185,7 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
                 ],
               ),
             ),
-            if(isLoading)loader()
+            if (isLoading) loader()
           ],
         ),
       ),

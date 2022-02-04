@@ -10,11 +10,13 @@ class Splash extends StatefulWidget {
 class _SplashState extends State<Splash> {
   @override
   void initState() {
-    SharedPreference.getIsLogin().then((isLogin){
+    // SharedPreference.saveEmployeeInfo(
+    //     id: 16, firstName: "Raj", lastName: "patel");
+    SharedPreference.getIsLogin().then((isLogin) {
       Future.delayed(const Duration(seconds: 3)).whenComplete(() =>
-          Navigator.of(context).pushReplacement(
-              MaterialPageRoute(builder: (context) => (isLogin)?
-              const DashBoardScreen():const LoginScreen())));
+          Navigator.of(context).pushReplacement(MaterialPageRoute(
+              builder: (context) =>
+                  (isLogin) ? const DashBoardScreen() : const LoginScreen())));
     });
     super.initState();
   }

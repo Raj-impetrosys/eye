@@ -15,7 +15,8 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
+import androidx.annotation.Nullable;
+//import androidx.core.app.ActivityCompat;
 
 import com.mantra.mis100.IrisData;
 import com.mantra.mis100.MIS100;
@@ -27,14 +28,45 @@ import java.util.Objects;
 
 import io.flutter.embedding.android.FlutterActivity;
 import io.flutter.embedding.engine.FlutterEngine;
+import io.flutter.plugin.common.BinaryMessenger;
+import io.flutter.plugin.common.EventChannel;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.Result;
 //import io.flutter.plugins.GeneratedPluginRegistrant;
-public class MainActivity extends FlutterActivity implements MIS100Event {
+
+public class MainActivity extends FlutterActivity implements MIS100Event{
 
     ImageView imgIris;
     EditText edtQuality;
     EditText edtTimeOut;
+
+    private EventChannel messageChannel = null;
+    private EventChannel.EventSink eventSink = null;
+
+//    @Override
+//    public void onListen(Object arguments, EventChannel.EventSink events) {
+//        this.eventSink = events;
+//        createListener(events);
+//        System.out.print(arguments);
+//        System.out.print(events);
+//    }
+
+    Bitmap bmp;
+
+    public void createListener(EventChannel.EventSink event) {
+        event.success(bmp);
+    }
+
+    public Bitmap setEvent(Bitmap bmp) {
+        this.bmp = bmp;
+        return bmp;
+    };
+//
+//    @Override
+//    public void onCancel(Object arguments) {
+//        eventSink = null;
+//        messageChannel = null;
+//    }
 
     private enum ScannerAction {
         Capture
@@ -49,21 +81,36 @@ public class MainActivity extends FlutterActivity implements MIS100Event {
     private static boolean isCaptureRunning = false;
     public static final String PERMISSION_WRITE_STORAGE = Manifest.permission.WRITE_EXTERNAL_STORAGE;
     public static final String PERMISSION_READ_STORAGE = Manifest.permission.READ_EXTERNAL_STORAGE;
-    public static final String MANAGE_EXTERNAL_STORAGE = Manifest.permission.MANAGE_EXTERNAL_STORAGE;
+//    public static final String MANAGE_EXTERNAL_STORAGE = Manifest.permission.MANAGE_EXTERNAL_STORAGE;
 
-    public static String[] Permission = new String[] { PERMISSION_WRITE_STORAGE, PERMISSION_READ_STORAGE,MANAGE_EXTERNAL_STORAGE };
+    public static String[] Permission = new String[] { PERMISSION_WRITE_STORAGE, PERMISSION_READ_STORAGE };
 
     @Override
     public void configureFlutterEngine(@NonNull FlutterEngine flutterEngine) {
         super.configureFlutterEngine(flutterEngine);
 //        GeneratedPluginRegistrant.registerWith(flutterEngine);
+//        messageChannel = EventChannel(flutterEngine, "eventChannelStream");
+//        messageChannel?.setStreamHandler(this);
 
     }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestPermissions(Permission, 1);
+
+        String EVENTCHANNEL = "eventChannelStream";
+        messageChannel =new EventChannel(Objects.requireNonNull(getFlutterEngine()).getDartExecutor().getBinaryMessenger(),EVENTCHANNEL);
+//        messageChannel.setStreamHandler((EventChannel.StreamHandler handler)->{
+//            handler.onListen(Object arguments, EventChannel.EventSink events){
+//                createListener(events);
+//            };
+//        });
+        setMessageChannel(messageChannel);
+//        messageChannel.setStreamHandler(this);
+
+
 
         String CHANNEL = "irisChannel";
         new MethodChannel(Objects.requireNonNull(getFlutterEngine()).getDartExecutor().getBinaryMessenger(), CHANNEL).setMethodCallHandler(
@@ -244,20 +291,23 @@ public class MainActivity extends FlutterActivity implements MIS100Event {
             isCaptureRunning = true;
             try {
                 IrisData irisData = new IrisData();
-                int quality = 60;
+                int quality = 80;
                 try {
                     quality = Integer.parseInt(edtQuality.getText().toString());
                 } catch (Exception e) {
 //                    result.error("400",e.toString(),"quality error");
 //                        Toast.makeText(this, e.toString(),Toast.LENGTH_LONG).show();
                 }
-                int timeout = 40000;
+                int timeout = 90000;
                 try {
                     timeout = Integer.parseInt(edtTimeOut.getText().toString());
                 } catch (Exception e) {
 //                    result.error("401",e.toString(),"timeout error");
                 }
                 int ret = mis100.AutoCapture(irisData, quality, timeout);
+
+//                mis100.OnMIS100AutoCaptureCallback();
+
                 if (ret != 0) {
 //                    result.error("402",mis100.GetErrorMsg(ret),"timeout error");
 //                        SetTextOnUIThread(mis100.GetErrorMsg(ret));
@@ -547,14 +597,72 @@ public class MainActivity extends FlutterActivity implements MIS100Event {
         }
     }
 
+    public void setMessageChannel(EventChannel messageChannel) {
+        this.messageChannel = messageChannel;
+    }
+
+    public EventChannel getMessageChannel() {
+        return messageChannel;
+    }
+
     @Override
     public void OnMIS100AutoCaptureCallback(int ErrorCode, int Quality, byte[] irisImage) {
+//        System.out.print(ErrorCode);
         if (ErrorCode != 0) {
-//            SetTextOnUIThread("Err :: " + ErrorCode + " (" + mis100.GetErrorMsg(ErrorCode) + ")");
             return;
         }
-//        SetTextOnUIThread("Quality :: " + Quality);
-        final Bitmap bmp = BitmapFactory.decodeByteArray(irisImage, 0, irisImage.length);
-        imgIris.post(() -> imgIris.setImageBitmap(bmp));
+        EventChannel.StreamHandler streamHandler = new EventChannel.StreamHandler() {
+            @Override
+            public void onListen(Object arguments, EventChannel.EventSink events) {
+                eventSink = events;
+                events.success(irisImage);
+                events.notifyAll();
+            }
+
+            @Override
+            public void onCancel(Object arguments) {
+                Log.e("platform_channel", "arguments: " + arguments.toString());
+                eventSink.endOfStream();
+            }
+        };
+        messageChannel.setStreamHandler(streamHandler);
+
+        //        System.out.print(irisImage.length);
+//        System.out.print(Quality);
+//        eventSink.success(irisImage);
     }
+
+//    @Override public void OnMIS100AutoCaptureCallback(int ErrorCode, int Quality, byte[] irisImage) {
+//        if (ErrorCode != 0) {
+//            return;
+////        SetTextonuiThread("Error: " + ErrorCode + "(" + mis100.GetErrorMsg(ErrorCode) + ")");
+//    } final Bitmap bitmap = BitmapFactory.decodeByteArray(irisImage, 0, irisImage.length);
+//    imgIris.post(new Runnable() {
+//        @Override public void run() {
+//            imgIris.setImageBitmap(bitmap);
+//    imgIris.refreshDrawableState();
+//            System.out.print(irisImage);
+//        System.out.print(Quality);
+//        eventSink.success(irisImage);
+//        } });
+////    SetTextonuiThread("Quality: " + Quality);
+//    }
+
+//    @Override
+//    public void OnMIS100AutoCaptureCallback(int ErrorCode, int Quality, byte[] irisImage) {
+////        System.out.print("ttttttttt");
+//        if (ErrorCode != 0) {
+////            SetTextOnUIThread("Err :: " + ErrorCode + " (" + mis100.GetErrorMsg(ErrorCode) + ")");
+//            return;
+//        }
+////        SetTextOnUIThread("Quality :: " + Quality);
+//        final Bitmap bmp = BitmapFactory.decodeByteArray(irisImage, 0, irisImage.length);
+//        eventSink.success(irisImage);
+////        eventSink.
+//        Toast.makeText(this, irisImage.length+ErrorCode+Quality,
+//                        Toast.LENGTH_LONG).show();
+//        setEvent(bmp);
+//        System.out.print(irisImage);
+//        imgIris.post(() -> imgIris.setImageBitmap(bmp));
+//    }
 }
