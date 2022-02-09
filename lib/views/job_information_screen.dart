@@ -200,46 +200,71 @@ class _GetJobInformationState extends State<GetJobInformation> {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
-            TextFormField(
-              controller: dateController,
-              readOnly: true,
-              onTap: () {
-                showDateRangePicker(
-                        context: context,
-                        firstDate: DateTime.now(),
-                        lastDate:
-                            DateTime.now().add(const Duration(days: 10000)))
-                    .then((value) {
-                  setState(() {
-                    dateTimeRange = value;
-                    dateController.text =
-                        "${value!.start.toString().split(' ')[0]} to ${value.end.toString().split(' ')[0]}";
-                  });
-                });
-              },
-              decoration: const InputDecoration(
-                  hintText: "Select date range", border: InputBorder.none),
-            ),
+            // TextFormField(
+            //   controller: dateController,
+            //   readOnly: true,
+            //   onTap: () {
+            //     showDateRangePicker(
+            //             context: context,
+            //             firstDate: DateTime.now(),
+            //             lastDate:
+            //                 DateTime.now().add(const Duration(days: 10000)))
+            //         .then((value) {
+            //       setState(() {
+            //         dateTimeRange = value;
+            //         dateController.text =
+            //             "${value!.start.toString().split(' ')[0]} to ${value.end.toString().split(' ')[0]}";
+            //       });
+            //     });
+            //   },
+            //   decoration: const InputDecoration(
+            //       hintText: "Select date range", border: InputBorder.none),
+            // ),
             Align(
               alignment: Alignment.centerRight,
               child: ElevatedButton(
-                  onPressed: (dateTimeRange == null || stateValue == null)
+                  onPressed: (stateValue == null)
                       ? null
                       : () {
-                          setState(() {
-                            loading = true;
-                          });
-                          assignJob(
+                          showDateRangePicker(
                                   context: context,
-                                  employeeId: widget.employee.id,
-                                  jobId: detail.jobId,
-                                  startDate: dateTimeRange!.start.toString(),
-                                  endDate: dateTimeRange!.end.toString())
-                              .whenComplete(() {
+                                  firstDate: DateTime.now(),
+                                  lastDate: DateTime.now()
+                                      .add(const Duration(days: 10000)))
+                              .then((value) {
                             setState(() {
-                              loading = false;
+                              dateTimeRange = value;
+                              dateController.text =
+                                  "${value!.start.toString().split(' ')[0]} to ${value.end.toString().split(' ')[0]}";
+                              loading = true;
+                              assignJob(
+                                      context: context,
+                                      employeeId: widget.employee.id,
+                                      jobId: detail.jobId,
+                                      startDate:
+                                          dateTimeRange!.start.toString(),
+                                      endDate: dateTimeRange!.end.toString())
+                                  .whenComplete(() {
+                                setState(() {
+                                  loading = false;
+                                });
+                              });
                             });
                           });
+                          // setState(() {
+                          //   loading = true;
+                          // });
+                          // assignJob(
+                          //         context: context,
+                          //         employeeId: widget.employee.id,
+                          //         jobId: detail.jobId,
+                          //         startDate: dateTimeRange!.start.toString(),
+                          //         endDate: dateTimeRange!.end.toString())
+                          //     .whenComplete(() {
+                          //   setState(() {
+                          //     loading = false;
+                          //   });
+                          // });
                           // jobCompletion(
                           //         context: context,
                           //         employeeId: widget.employeeId,

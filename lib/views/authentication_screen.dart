@@ -93,16 +93,16 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
                     ],
                   ),
                   // customTextField(suffixIcon: 'person-100', controller: employeeName, fieldName: 'Employee Name'),
-                  (event != null)
-                      ? Image.memory(
-                          event!,
-                          width: 200,
-                          height: 200,
-                        )
-                      : Image.asset(
-                          "assets/images/user-500.png",
-                          width: 50,
-                        ),
+                  // (event != null)
+                  //     ? Image.memory(
+                  //         event!,
+                  //         width: 200,
+                  //         height: 200,
+                  //       )
+                  //     : Image.asset(
+                  //         "assets/images/user-500.png",
+                  //         width: 50,
+                  //       ),
                   // Text(event),
                   (bytes != null)
                       ? Image.memory(
