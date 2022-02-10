@@ -136,7 +136,7 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
                             "assets/images/scan-btn-100.png",
                             width: 80,
                           )),
-                      SizedBox(
+                      const SizedBox(
                         width: 10,
                       ),
                       GestureDetector(
