@@ -21,14 +21,15 @@ class _GetJobInformationState extends State<GetJobInformation> {
 
   String? stateValue = "Maharashtra";
 
-  String? cityValue;
+  String? cityValue = "Pune";
   DateTimeRange? dateTimeRange;
 
   TextEditingController dateController = TextEditingController();
 
   @override
   void initState() {
-    getJobInformationApi = getJobInformation(state: stateValue!);
+    getJobInformationApi =
+        getJobInformation(state: stateValue!, district: cityValue!);
     super.initState();
   }
 
@@ -48,7 +49,7 @@ class _GetJobInformationState extends State<GetJobInformation> {
                   currentState: stateValue,
                   stateDropdownLabel: stateValue!,
                   disableCountry: false,
-                  showCities: false,
+                  showCities: true,
                   onCountryChanged: (value) {
                     setState(() {
                       countryValue = value;
@@ -59,18 +60,18 @@ class _GetJobInformationState extends State<GetJobInformation> {
                       // loading = true;
                       if (value != null) {
                         stateValue = value;
-                        if (stateValue != null) {
-                          setState(() {
-                            loading = true;
-                            getJobInformationApi =
-                                getJobInformation(state: stateValue!)
-                                    .whenComplete(() {
-                              setState(() {
-                                loading = false;
-                              });
-                            });
-                          });
-                        }
+                        // if (stateValue != null && cityValue != null) {
+                        //   setState(() {
+                        //     loading = true;
+                        //     getJobInformationApi = getJobInformation(
+                        //             state: stateValue!, district: cityValue!)
+                        //         .whenComplete(() {
+                        //       setState(() {
+                        //         loading = false;
+                        //       });
+                        //     });
+                        //   });
+                        // }
                       }
                       print("state changed $value");
                       // getJobInformationApi =
@@ -79,8 +80,21 @@ class _GetJobInformationState extends State<GetJobInformation> {
                     });
                   },
                   onCityChanged: (value) {
+                    print(value);
                     setState(() {
                       cityValue = value;
+                      if (stateValue != null && cityValue != null) {
+                        setState(() {
+                          loading = true;
+                          getJobInformationApi = getJobInformation(
+                                  state: stateValue!, district: cityValue!)
+                              .whenComplete(() {
+                            setState(() {
+                              loading = false;
+                            });
+                          });
+                        });
+                      }
                     });
                   },
                 ),
@@ -107,7 +121,8 @@ class _GetJobInformationState extends State<GetJobInformation> {
                       builder: (context,
                           AsyncSnapshot<JobInformationResponse> snapshot) {
                         if (snapshot.hasData) {
-                          List<Job> employeeList = snapshot.data!.employeeList;
+                          List<dynamic> employeeList =
+                              snapshot.data!.employeeList;
                           if (employeeList.isNotEmpty) {
                             return ListView.builder(
                                 padding: const EdgeInsets.all(10),
@@ -117,6 +132,7 @@ class _GetJobInformationState extends State<GetJobInformation> {
                                         // if (index == 0)
                                         // Text(
                                         //     "search results for $stateValue"),
+                                        // listItem(detail: employeeList[index])
                                         listItem(detail: employeeList[index])
                                       ],
                                     ));
@@ -126,6 +142,9 @@ class _GetJobInformationState extends State<GetJobInformation> {
                               child: Text("No Jobs"),
                             );
                           }
+                        }
+                        if (snapshot.hasError) {
+                          return Center(child: Text(snapshot.error.toString()));
                         }
                         return loader();
                       }),
@@ -139,48 +158,191 @@ class _GetJobInformationState extends State<GetJobInformation> {
     );
   }
 
-  listItem({required Job detail}) => Card(
+  // listItem({required Job detail}) => Card(
+  //         child: Padding(
+  //       padding: const EdgeInsets.all(10.0),
+  //       child: Column(
+  //         crossAxisAlignment: CrossAxisAlignment.start,
+  //         children: [
+  //           Text(
+  //             detail.jobName,
+  //             style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 22),
+  //             maxLines: 2,
+  //             overflow: TextOverflow.ellipsis,
+  //           ),
+  //           Text(
+  //             detail.jobDescription,
+  //             style: const TextStyle(
+  //                 fontWeight: FontWeight.normal, color: Color(0xff6A6F7C)),
+  //             maxLines: 2,
+  //             overflow: TextOverflow.ellipsis,
+  //           ),
+  //           Text(
+  //             "District: ${detail.district}",
+  //             style: const TextStyle(
+  //                 fontWeight: FontWeight.normal, color: Color(0xff6A6F7C)),
+  //             maxLines: 1,
+  //             overflow: TextOverflow.ellipsis,
+  //           ),
+  //           Text(
+  //             "State: ${detail.state}",
+  //             style: const TextStyle(
+  //                 fontWeight: FontWeight.normal, color: Color(0xff6A6F7C)),
+  //             maxLines: 1,
+  //             overflow: TextOverflow.ellipsis,
+  //           ),
+  //           Text(
+  //             "Block: ${detail.block}",
+  //             style: const TextStyle(
+  //                 fontWeight: FontWeight.normal, color: Color(0xff6A6F7C)),
+  //             maxLines: 1,
+  //             overflow: TextOverflow.ellipsis,
+  //           ),
+  //           Text(
+  //             "No. of people needed: ${detail.numberPeopleNeeded}",
+  //             style: const TextStyle(
+  //                 fontWeight: FontWeight.normal, color: Color(0xff6A6F7C)),
+  //             maxLines: 1,
+  //             overflow: TextOverflow.ellipsis,
+  //           ),
+  //           // Text(
+  //           //   "End date: ${detail.endDate}",
+  //           //   style: const TextStyle(
+  //           //       fontWeight: FontWeight.normal, color: Color(0xff6A6F7C)),
+  //           //   maxLines: 1,
+  //           //   overflow: TextOverflow.ellipsis,
+  //           // ),
+  //           Text(
+  //             "Job duration in days: ${detail.jobDurationInDays}",
+  //             style: const TextStyle(
+  //                 fontWeight: FontWeight.normal, color: Color(0xff6A6F7C)),
+  //             maxLines: 1,
+  //             overflow: TextOverflow.ellipsis,
+  //           ),
+  //           // TextFormField(
+  //           //   controller: dateController,
+  //           //   readOnly: true,
+  //           //   onTap: () {
+  //           //     showDateRangePicker(
+  //           //             context: context,
+  //           //             firstDate: DateTime.now(),
+  //           //             lastDate:
+  //           //                 DateTime.now().add(const Duration(days: 10000)))
+  //           //         .then((value) {
+  //           //       setState(() {
+  //           //         dateTimeRange = value;
+  //           //         dateController.text =
+  //           //             "${value!.start.toString().split(' ')[0]} to ${value.end.toString().split(' ')[0]}";
+  //           //       });
+  //           //     });
+  //           //   },
+  //           //   decoration: const InputDecoration(
+  //           //       hintText: "Select date range", border: InputBorder.none),
+  //           // ),
+  //           Align(
+  //             alignment: Alignment.centerRight,
+  //             child: ElevatedButton(
+  //                 onPressed: (stateValue == null)
+  //                     ? null
+  //                     : () {
+  //                         showDateRangePicker(
+  //                                 context: context,
+  //                                 firstDate: DateTime.now(),
+  //                                 lastDate: DateTime.now()
+  //                                     .add(const Duration(days: 10000)))
+  //                             .then((value) {
+  //                           setState(() {
+  //                             dateTimeRange = value;
+  //                             dateController.text =
+  //                                 "${value!.start.toString().split(' ')[0]} to ${value.end.toString().split(' ')[0]}";
+  //                             loading = true;
+  //                             assignJob(
+  //                                     context: context,
+  //                                     employeeId: widget.employee.id,
+  //                                     jobId: detail.jobId,
+  //                                     startDate:
+  //                                         dateTimeRange!.start.toString(),
+  //                                     endDate: dateTimeRange!.end.toString())
+  //                                 .whenComplete(() {
+  //                               setState(() {
+  //                                 loading = false;
+  //                               });
+  //                             });
+  //                           });
+  //                         });
+  //                         // setState(() {
+  //                         //   loading = true;
+  //                         // });
+  //                         // assignJob(
+  //                         //         context: context,
+  //                         //         employeeId: widget.employee.id,
+  //                         //         jobId: detail.jobId,
+  //                         //         startDate: dateTimeRange!.start.toString(),
+  //                         //         endDate: dateTimeRange!.end.toString())
+  //                         //     .whenComplete(() {
+  //                         //   setState(() {
+  //                         //     loading = false;
+  //                         //   });
+  //                         // });
+  //                         // jobCompletion(
+  //                         //         context: context,
+  //                         //         employeeId: widget.employeeId,
+  //                         //         jobId: detail.jobId)
+  //                         //     .whenComplete(() {
+  //                         //   setState(() {
+  //                         //     loading = false;
+  //                         //   });
+  //                         // });
+  //                       },
+  //                 child:
+  //                     Text("Assign this Job to ${widget.employee.firstName}")),
+  //           ),
+  //         ],
+  //       ),
+  //     ));
+
+  listItem({required Map detail}) => Card(
           child: Padding(
         padding: const EdgeInsets.all(10.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              detail.jobName,
+              detail["job_name"],
               style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 22),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
             Text(
-              detail.jobDescription,
+              detail["job_description"],
               style: const TextStyle(
                   fontWeight: FontWeight.normal, color: Color(0xff6A6F7C)),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
             Text(
-              "City: ${detail.city}",
+              "District: ${detail["district"]}",
               style: const TextStyle(
                   fontWeight: FontWeight.normal, color: Color(0xff6A6F7C)),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
             Text(
-              "State: ${detail.state}",
+              "State: ${detail["state"]}",
               style: const TextStyle(
                   fontWeight: FontWeight.normal, color: Color(0xff6A6F7C)),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
             Text(
-              "Mandal: ${detail.mandal}",
+              "Block: ${detail["block"]}",
               style: const TextStyle(
                   fontWeight: FontWeight.normal, color: Color(0xff6A6F7C)),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
             Text(
-              "No. of people needed: ${detail.numberPeopleNeeded}",
+              "No. of people needed: ${detail["number_people_needed"]}",
               style: const TextStyle(
                   fontWeight: FontWeight.normal, color: Color(0xff6A6F7C)),
               maxLines: 1,
@@ -194,7 +356,7 @@ class _GetJobInformationState extends State<GetJobInformation> {
             //   overflow: TextOverflow.ellipsis,
             // ),
             Text(
-              "Job duration in days: ${detail.jobDurationInDays}",
+              "Job duration in days: ${detail["job_duration_in_days"]}",
               style: const TextStyle(
                   fontWeight: FontWeight.normal, color: Color(0xff6A6F7C)),
               maxLines: 1,
@@ -240,7 +402,7 @@ class _GetJobInformationState extends State<GetJobInformation> {
                               assignJob(
                                       context: context,
                                       employeeId: widget.employee.id,
-                                      jobId: detail.jobId,
+                                      jobId: detail["job_id"],
                                       startDate:
                                           dateTimeRange!.start.toString(),
                                       endDate: dateTimeRange!.end.toString())

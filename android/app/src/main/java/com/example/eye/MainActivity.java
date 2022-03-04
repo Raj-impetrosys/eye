@@ -741,9 +741,10 @@ import static com.mantra.midirisauth.enums.ImageFormat.RAW;
 import io.flutter.embedding.android.FlutterActivity;
 import io.flutter.embedding.android.FlutterFragmentActivity;
 import io.flutter.embedding.engine.FlutterEngine;
+import io.flutter.plugin.common.EventChannel;
 import io.flutter.plugin.common.MethodChannel;
 
-public class MainActivity extends FlutterActivity implements MIDIrisAuth_Callback {
+public class MainActivity extends FlutterActivity implements MIDIrisAuth_Callback, EventChannel.StreamHandler {
 
 //    @BindView(R.id.menuitem_list)
 //    RecyclerView menuitemList;
@@ -778,7 +779,7 @@ public class MainActivity extends FlutterActivity implements MIDIrisAuth_Callbac
 //    @BindView(R.id.txtWH)
 //    TextView txtWH;
 //    @BindView(R.id.iv_status_fp)
-//    ImageView ivStatusFp;
+    ImageView ivStatusFp;
 //    //    private AppBarConfiguration mAppBarConfiguration;
 //    private MenuAdapter menuAdapter;
 //    private ActionAdapter actionAdapter;
@@ -791,7 +792,7 @@ public class MainActivity extends FlutterActivity implements MIDIrisAuth_Callbac
 //    SelectorAdapter adapter;
     private static final String strSelect = "No Device";
     private byte[] lastCapIrisData;
-    private DeviceInfo lastDeviceInfo;
+    private DeviceInfo lastDeviceInfo = new DeviceInfo();
     ImageFormat captureImageDatas;
     private final Paint paint = new Paint();
 
@@ -808,11 +809,25 @@ public class MainActivity extends FlutterActivity implements MIDIrisAuth_Callbac
     public static long lastClickTime = 0;
     public static int ClickThreshold = 1000;
     int minQuality = 85;
-    int timeOut = 10000;
+    int timeOut = 90000;
     int BmpHeaderlength = 1078;
     public static final String PERMISSION_WRITE_STORAGE = Manifest.permission.WRITE_EXTERNAL_STORAGE;
     public static final String PERMISSION_READ_STORAGE = Manifest.permission.READ_EXTERNAL_STORAGE;
     public static String[] Permission = new String[]{PERMISSION_WRITE_STORAGE, PERMISSION_READ_STORAGE};
+
+    private EventChannel messageChannel = null;
+    private EventChannel.EventSink eventSink = null;
+
+    @Override
+    public void onListen(Object arguments, EventChannel.EventSink events) {
+        this.eventSink = events;
+    }
+
+    @Override
+    public void onCancel(Object arguments) {
+        eventSink = null;
+        messageChannel = null;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -853,6 +868,10 @@ public class MainActivity extends FlutterActivity implements MIDIrisAuth_Callbac
 //        clearText();
 
         midIrisAuth = new MIDIrisAuth(this, this);
+
+        String EVENTCHANNEL = "eventChannelStream";
+        messageChannel =new EventChannel(Objects.requireNonNull(getFlutterEngine()).getDartExecutor().getBinaryMessenger(),EVENTCHANNEL);
+        messageChannel.setStreamHandler(this);
 //
         String CHANNEL = "irisChannel";
         new MethodChannel(Objects.requireNonNull(getFlutterEngine()).getDartExecutor().getBinaryMessenger(), CHANNEL).setMethodCallHandler(
@@ -874,12 +893,13 @@ public class MainActivity extends FlutterActivity implements MIDIrisAuth_Callbac
                             break;
                         case "startScan":
                             boolean isCaptureRunning = midIrisAuth.IsCaptureRunning();
-                            if (!isCaptureRunning) {
-                                 StartSyncCapture(result);
-//                                    result.success(_bitmap);
-                            }else{
-                                StopCapture(result);
-                            }
+                            StartSyncCapture(result);
+//                            if (!isCaptureRunning) {
+//                                 StartSyncCapture(result);
+////                                    result.success(_bitmap);
+//                            }else{
+//                                StopCapture(result);
+//                            }
                             break;
                         case "stopScan":
                              isCaptureRunning = midIrisAuth.IsCaptureRunning();
@@ -1076,23 +1096,23 @@ public class MainActivity extends FlutterActivity implements MIDIrisAuth_Callbac
                     @Override
                     public void run() {
                         try {
-                            String device = spDeviceName.getSelectedItem().toString();
-                            boolean ret = midIrisAuth.IsDeviceConnected(DeviceModel.valueFor(device));
+//                            String device = spDeviceName.getSelectedItem().toString();
+                            boolean ret = midIrisAuth.IsDeviceConnected(DeviceModel.MIS100V2);
                             if (ret) {
-//                                ivStatusFp.post(new Runnable() {
-//                                    @Override
-//                                    public void run() {
-////                                        ivStatusFp.setImageResource(R.drawable.connect_1);
-//                                    }
-//                                });
+                                ivStatusFp.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+//                                        ivStatusFp.setImageResource(R.drawable.connect_1);
+                                    }
+                                });
                                 setLogs("Device Connected", false);
                             } else {
-//                                ivStatusFp.post(new Runnable() {
-//                                    @Override
-//                                    public void run() {
+                                ivStatusFp.post(new Runnable() {
+                                    @Override
+                                    public void run() {
 //                                        ivStatusFp.setImageResource(R.drawable.disconnect_1);
-//                                    }
-//                                });
+                                    }
+                                });
                                 setLogs("Device Not Connected", true);
                             }
                         } catch (Exception e) {
@@ -1107,9 +1127,9 @@ public class MainActivity extends FlutterActivity implements MIDIrisAuth_Callbac
                     @Override
                     public void run() {
                         try {
-                            String device = spDeviceName.getSelectedItem().toString();
+//                            String device = spDeviceName.getSelectedItem().toString();
                             DeviceInfo info = new DeviceInfo();
-                            int ret = midIrisAuth.Init(DeviceModel.valueFor(device), info);
+                            int ret = midIrisAuth.Init(DeviceModel.MIS100V2, info);
                             if (ret != 0) {
                                 setLogs("Init: " + ret + " (" + midIrisAuth.GetErrorMessage(ret) + ")", true);
                             } else {
@@ -1226,7 +1246,7 @@ public class MainActivity extends FlutterActivity implements MIDIrisAuth_Callbac
         }
         try {
 
-            imgIris.setImageResource(R.drawable.launch_background);
+//            imgIris.setImageResource(R.drawable.launch_background);
             new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -1261,12 +1281,12 @@ public class MainActivity extends FlutterActivity implements MIDIrisAuth_Callbac
                 try {
                     int compressionRatio = 1;
 //                    FingerData fingerData = new FingerData();
-                    imgIris.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            imgIris.setImageResource(R.drawable.launch_background);
-                        }
-                    });
+//                    imgIris.post(new Runnable() {
+//                        @Override
+//                        public void run() {
+////                            imgIris.setImageResource(R.drawable.launch_background);
+//                        }
+//                    });
                     int qty[] = new int[1];
                     IrisAnatomy irisAnatomy = new IrisAnatomy();
                     setLogs("Auto Capture Started", false);
@@ -1278,12 +1298,12 @@ public class MainActivity extends FlutterActivity implements MIDIrisAuth_Callbac
                         }
                     });*/
                     if (ret != 0) {
-                        imgIris.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                imgIris.setImageResource(R.drawable.launch_background);
-                            }
-                        });
+//                        imgIris.post(new Runnable() {
+//                            @Override
+//                            public void run() {
+//                                imgIris.setImageResource(R.drawable.launch_background);
+//                            }
+//                        });
                         setLogs("Start Sync Capture Ret: " + ret + " (" + midIrisAuth.GetErrorMessage(ret) + ")", true);
                     } else {
                         String log = "Capture Success ";
@@ -1380,24 +1400,25 @@ public class MainActivity extends FlutterActivity implements MIDIrisAuth_Callbac
     public void OnDeviceDetection(String DeviceName, DeviceDetection detection) {
 //        DeviceModel deviceModel = DeviceModel.valueFor(DeviceName);
         if (detection == DeviceDetection.CONNECTED) {
+            onActionClick(1,"init",null);
             if (DeviceName != null) {
 //                ivStatusFp.post(new Runnable() {
 //                    @Override
 //                    public void run() {
-//                        ivStatusFp.setImageResource(R.drawable.connect_1);
+////                        ivStatusFp.setImageResource(R.drawable.connect_1);
 //                    }
 //                });
-                boolean exist = false;
-                for (String string : modelName) {
-                    if (string.equals(DeviceName)) {
-                        exist = true;
-                        break;
-                    }
-                }
-                if (!exist) {
-                    modelName.add(DeviceName);
-                    modelName.remove(strSelect);
-                }
+//                boolean exist = false;
+//                for (String string : modelName) {
+//                    if (string.equals(DeviceName)) {
+//                        exist = true;
+//                        break;
+//                    }
+//                }
+//                if (!exist) {
+//                    modelName.add(DeviceName);
+//                    modelName.remove(strSelect);
+//                }
 //                adapter.notifyDataSetChanged();
             }
             setLogs("Device connected", false);
@@ -1487,7 +1508,10 @@ public class MainActivity extends FlutterActivity implements MIDIrisAuth_Callbac
                 }
                 bitmap.recycle();
                 bmOverlay.recycle();
-                ShowImage(byteArray);
+//                ShowImage(byteArray);
+                runOnUiThread(()->
+                        eventSink.success(Image)
+                        );
 
                 setLogs("Preview Quality: " + Quality, false);
             } else {

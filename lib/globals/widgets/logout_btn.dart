@@ -16,6 +16,15 @@ Widget logoutBtn(context) => IconButton(
 
         EyeScannerController eyeScannerController = EyeScannerController();
         eyeScannerController.init();
+                              EyeScannerController.messageChannel
+                                  .receiveBroadcastStream()
+                                  .listen((event) {
+                                print("event: $event");
+                                // setState(() {
+                                //   bytes = event;
+                                // });
+                                streamController.add(event);
+                              });
         // if(formKey.currentState!.validate()) {
         Uint8List? bytes;
         showModalBottomSheet(

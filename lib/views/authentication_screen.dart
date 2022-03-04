@@ -32,7 +32,7 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
         .listen((event) {
       print("event: $event");
       setState(() {
-        this.event = event;
+        bytes = event;
       });
     });
 

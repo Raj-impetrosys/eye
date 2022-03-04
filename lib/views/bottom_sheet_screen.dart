@@ -9,6 +9,19 @@ class BottomSheetScreen extends StatefulWidget {
 }
 
 class _BottomSheetScreenState extends State<BottomSheetScreen> {
+  Uint8List? bytes;
+
+  @override
+  void initState() {
+    bytes = widget.bytes;
+    streamController.stream.listen((event) {
+      setState(() {
+        bytes = event;
+      });
+    });
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     final double width = MediaQuery.of(context).size.width;
@@ -30,9 +43,9 @@ class _BottomSheetScreenState extends State<BottomSheetScreen> {
             "Scanning started...",
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
-          (widget.bytes != null)
+          (bytes != null)
               ? Image.memory(
-                  widget.bytes!,
+                  bytes!,
                   width: 200,
                   height: 200,
                 )

@@ -191,6 +191,16 @@ class _LoginScreenState extends State<LoginScreen> {
                               //     .whenComplete((){
                               //   eyeScannerController.stopScan();
                               // });
+                              eyeScannerController.init();
+                              EyeScannerController.messageChannel
+                                  .receiveBroadcastStream()
+                                  .listen((event) {
+                                print("event: $event");
+                                // setState(() {
+                                //   bytes = event;
+                                // });
+                                streamController.add(event);
+                              });
                               eyeScannerController.startScan().then((value) {
                                 // if(bytes==value){
                                 //   print("same");
