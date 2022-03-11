@@ -910,6 +910,9 @@ public class MainActivity extends FlutterActivity implements MIDIrisAuth_Callbac
                         case "unInit":
 //                            UnInitScanner();
                             break;
+                        case "match":
+                            matchData();
+                            break;
                     }
 
 //                        result.success("success");

@@ -11,11 +11,22 @@ class GetEmployeeJobsScreen extends StatefulWidget {
 
 class _GetEmployeeJobsScreenState extends State<GetEmployeeJobsScreen> {
   late Future<ManagerEmployeesResponse> getEmployeeListApi;
+  DbController dbController = DbController();
 
   @override
   void initState() {
-    getEmployeeListApi = getManagerEmployeesList();
+    // getEmployeeListApi = getManagerEmployeesList();
+    dbController.openDb(tableName: "employee_list", tableType: TableType.employeeList).whenComplete((){
+      setState(() {
+      });
+    });
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    dbController.closeDb();
+    super.dispose();
   }
 
   @override
@@ -24,14 +35,23 @@ class _GetEmployeeJobsScreenState extends State<GetEmployeeJobsScreen> {
       appBar: const CustomAppBar(
         title: 'Get Employee Jobs',
       ),
+      floatingActionButton: FloatingActionButton(
+        child: const Icon(Icons.refresh),
+        onPressed: (){
+          showFetchDataDialog();
+        },
+      ),
       body: SafeArea(
         child: FutureBuilder(
-            future: getEmployeeListApi,
+            // future: getEmployeeListApi,
+            future: dbController.getData(tableName: "employee_list"),
             builder:
-                (context, AsyncSnapshot<ManagerEmployeesResponse> snapshot) {
+                (context, AsyncSnapshot<List<ManagerEmployeeList>> snapshot) {
+            // builder:
+            //     (context, AsyncSnapshot<ManagerEmployeesResponse> snapshot) {
               if (snapshot.hasData) {
                 List<ManagerEmployeeList> employeeList =
-                    snapshot.data!.employeeList;
+                    snapshot.data!;
                 return ListView.builder(
                     padding: const EdgeInsets.all(10),
                     itemCount: employeeList.length,
@@ -79,4 +99,43 @@ class _GetEmployeeJobsScreenState extends State<GetEmployeeJobsScreen> {
           ),
         ),
       );
+
+  void showFetchDataDialog(){
+    showDialog(context: context, builder: (context)=>AlertDialog(
+      title: const Text("Sync employee list from server"),
+      actions: [
+        ElevatedButton(onPressed: (){
+          syncEmployeeListFromServer()
+            ..catchError((e)=>showToast(msg: e))
+            ..onError((error, stackTrace) => showToast(msg: error))
+            ..whenComplete(() => Navigator.pop(context));
+        }, child: const Text("Ok")),
+        ElevatedButton(onPressed: (){
+          Navigator.pop(context);
+        }, child: const Text("Cancel")),
+      ],
+    ));
+  }
+
+  Future syncEmployeeListFromServer() async{
+    getEmployeeListApi = getManagerEmployeesList().then((value){
+      dbController.openDb(tableName: "employee_list", tableType: TableType.employeeList).whenComplete((){
+        dbController.deleteTableData(tableName: "employee_list");
+        for(var employee in value.employeeList) {
+          dbController.insertData(data: employee.toJson(),tableName: "employee_list", tableType: TableType.employeeList);
+        }
+        setState(() {
+        });
+        showToast(msg: "Refreshed");
+        // dbController.getData().then((value){
+        //   for(var employee in value) {
+        //     managerEmployeeList.add(ManagerEmployeeList.fromJson(employee));
+        //   }
+        //   print(managerEmployeeList);
+        // });
+      });
+      return value;
+    });
+  }
+
 }

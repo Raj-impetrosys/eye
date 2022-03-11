@@ -52,6 +52,11 @@ class _GetEmployeeJobsDetailScreenState
                       );
                     }
                   }
+                  if(snapshot.hasError){
+                    return Center(
+                      child: Text(snapshot.error.toString())
+                    );
+                  }
                   return loader();
                 }),
             if (loading) loader()
@@ -109,14 +114,14 @@ class _GetEmployeeJobsDetailScreenState
               overflow: TextOverflow.ellipsis,
             ),
             Text(
-              "City: ${detail.city}",
+              "District: ${detail.district}",
               style: const TextStyle(
                   fontWeight: FontWeight.normal, color: Color(0xff6A6F7C)),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
             Text(
-              "Mandal: ${detail.mandal}",
+              "Block: ${detail.block}",
               style: const TextStyle(
                   fontWeight: FontWeight.normal, color: Color(0xff6A6F7C)),
               maxLines: 1,

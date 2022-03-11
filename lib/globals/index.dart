@@ -21,3 +21,4 @@ export 'package:eye/globals/functions/validator.dart';
 export 'package:eye/services/api/login_api.dart';
 export 'package:flutter/services.dart';
 export 'package:eye/globals/functions/get_location.dart';
+export 'package:eye/controllers/db_controller.dart';

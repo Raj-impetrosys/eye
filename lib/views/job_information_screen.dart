@@ -46,8 +46,8 @@ class _GetJobInformationState extends State<GetJobInformation> {
               children: [
                 CSCPicker(
                   defaultCountry: DefaultCountry.India,
-                  currentState: stateValue,
-                  stateDropdownLabel: stateValue!,
+                  // currentState: stateValue,
+                  // stateDropdownLabel: stateValue!,
                   disableCountry: false,
                   showCities: true,
                   onCountryChanged: (value) {

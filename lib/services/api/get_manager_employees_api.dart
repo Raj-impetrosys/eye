@@ -108,7 +108,7 @@ class ManagerEmployeeList {
         phone: json["phone"],
         rightEye: json["right_eye"],
         state: json["state"],
-        type: typeValues.map[json["type"]]!,
+        type: typeValues.map[json["type"]??"M"]!,
         village: json["village"],
       );
 
@@ -131,9 +131,9 @@ class ManagerEmployeeList {
       };
 }
 
-enum Type { M, E }
-
-final typeValues = EnumValues({"E": Type.E, "M": Type.M});
+// enum Type { M, E }
+//
+// final typeValues = EnumValues({"E": Type.E, "M": Type.M});
 
 class EnumValues<T> {
   Map<String, T> map = {};

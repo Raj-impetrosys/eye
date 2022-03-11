@@ -1,5 +1,7 @@
 import 'package:eye/globals/index.dart';
 import 'package:eye/globals/widgets/custom_btn.dart';
+import 'package:eye/models/attendance_model.dart';
+import 'package:eye/services/api/attendance_offline_api.dart';
 
 enum AttendType { goingIn, goingOut }
 
@@ -16,6 +18,7 @@ class AuthenticationScreen extends StatefulWidget {
 class _AuthenticationScreenState extends State<AuthenticationScreen> {
   AttendType attendType = AttendType.goingIn;
   EyeScannerController eyeScannerController = EyeScannerController();
+  DbController dbController = DbController();
 
   Uint8List? bytes;
 
@@ -23,9 +26,21 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
 
   bool isLoading = false;
   Uint8List? event;
+  String tableName = "attendance";
 
   @override
   void initState() {
+    dbController.openDb(tableName: tableName, tableType: TableType.attendance).whenComplete((){
+      // setState(() {
+      // });
+      // dbController.deleteTable(tableName: tableName);
+      // try {
+      //   dbController.createTable(tableName: tableName, tableType: TableType.attendance);
+      // } on DatabaseException{
+      //   print("table already exist");
+      // }
+      // dbController.addColumn(tableName: tableName, columnDefinition: "(name TEXT)");
+    });
     eyeScannerController.init();
     EyeScannerController.messageChannel
         .receiveBroadcastStream()
@@ -156,7 +171,8 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
                   customBtn(
                       btnText: 'Submit',
                       onTap: () {
-                        setState(() {
+                        if(bytes!= null) {
+                          setState(() {
                           isLoading = true;
                         });
                         employeeAuth(
@@ -171,7 +187,55 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
                             isLoading = false;
                           });
                         });
-                      })
+                        }else{
+                          showToast(msg: "complete eye scan then try again");
+                        }
+                      }),
+                  // FutureBuilder(builder: builder)
+                  customBtn(
+                      btnText: 'Mark Offline',
+                      onTap: () async{
+                        if(bytes != null) {
+                        // if(true) {
+                          setState(() {
+                            isLoading = true;
+                          });
+                          var location = await getLocation();
+                          // dbController.deleteTable(tableName: tableName);
+                          dbController.insertData(data: AttendanceModel(
+                              employeeId: widget.userId,
+                              lat: location.latitude.toString(),
+                              long: location.longitude.toString(),
+                              type: (attendType == AttendType.goingIn)
+                                  ? "in"
+                                  : "out",
+                              file: base64Encode(bytes!), markTime: DateTime.now().toString().split('.')[0]).toJson(),
+                              tableName: "attendance", tableType: TableType.attendance).whenComplete(() {
+                            setState(() {
+                              isLoading = false;
+                            });
+                          });
+                          dbController.getAttendanceData(tableName: tableName);
+                        } else {
+                          showToast(msg: "complete eye scan then try again");
+                        }
+                      }),
+                  customBtn(onTap: (){
+                    setState(() {
+                      isLoading = true;
+                    });
+                    // dbController.deleteTable(tableName: tableName);
+                    dbController.getAttendanceData(tableName: tableName).then((employeeList) => attendanceSync(context: context, employeeList: employeeList).then((value) {
+                      if(value.statusCode==200){
+                        showToast(msg: "Successfully synced");
+                        dbController.deleteTableData(tableName: tableName);
+                      }
+                    }).whenComplete(() {
+                      setState(() {
+                        isLoading = false;
+                      });
+                    }));
+                  }, btnText: "Sync Attendance")
                   // ElevatedButton(
                   //     onPressed: () {
                   //       employeeAuth(
