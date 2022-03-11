@@ -94,8 +94,6 @@ class DbController {
       createTable(tableName: tableName, tableType: tableType);
     }
 
-    // await db.insert(tableName,
-    //     EmployeeList(aadhar: "aadhar", address: "address", district: "district", email: "email", firstName: "firstName", fkManagerId: 0, id: 0, image: "image", lastName: "lastName", leftEye: "leftEye", phone: "phone", rightEye: "rightEye", state: "state", type: Type.M, village: "village").toJson());
   }
 
   deleteTableData({required String tableName}) async{
