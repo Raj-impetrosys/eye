@@ -902,10 +902,10 @@ public class MainActivity extends FlutterActivity implements MIDIrisAuth_Callbac
 //                            }
                             break;
                         case "stopScan":
-                             isCaptureRunning = midIrisAuth.IsCaptureRunning();
-                            if (isCaptureRunning) {
+                            //  isCaptureRunning = midIrisAuth.IsCaptureRunning();
+                            // if (isCaptureRunning) {
                                 StopCapture(result);
-                            }
+                            // }
                             break;
                         case "unInit":
 //                            UnInitScanner();

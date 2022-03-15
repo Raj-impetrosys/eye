@@ -14,13 +14,16 @@ class _EmployeeListScreenState extends State<EmployeeListScreen> {
   DbController dbController = DbController();
   @override
   void initState() {
-    dbController.openDb(tableName: "employee_list", tableType: TableType.employeeList).whenComplete((){
-      setState(() {
-      });
-      });
+    dbController
+        .openDb(tableName: "employee_list", tableType: TableType.employeeList)
+        .whenComplete(() {
+      setState(() {});
+    });
+    // WidgetsBinding.instance!
+    //     .addPostFrameCallback((_) => syncEmployeeListFromServer());
     super.initState();
   }
-  
+
   @override
   void didChangeDependencies() {
     // Future.delayed(const Duration(seconds: 2)).whenComplete(() => showFetchDataDialog());
@@ -41,7 +44,7 @@ class _EmployeeListScreenState extends State<EmployeeListScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.refresh),
-        onPressed: (){
+        onPressed: () {
           showFetchDataDialog();
         },
       ),
@@ -52,11 +55,10 @@ class _EmployeeListScreenState extends State<EmployeeListScreen> {
             builder:
                 (context, AsyncSnapshot<List<ManagerEmployeeList>> snapshot) {
               // builder:
-            //     (context, AsyncSnapshot<ManagerEmployeesResponse> snapshot) {
+              //     (context, AsyncSnapshot<ManagerEmployeesResponse> snapshot) {
               if (snapshot.hasData) {
                 print(snapshot.data);
-                List<ManagerEmployeeList> employeeList =
-                    snapshot.data!;
+                List<ManagerEmployeeList> employeeList = snapshot.data!;
                 if (employeeList.isNotEmpty) {
                   return ListView.builder(
                       padding: const EdgeInsets.all(10),
@@ -112,15 +114,19 @@ class _EmployeeListScreenState extends State<EmployeeListScreen> {
         ),
       );
 
-  Future syncEmployeeListFromServer() async{
-    getEmployeeListApi = getManagerEmployeesList().then((value){
-       dbController.openDb(tableName: "employee_list", tableType: TableType.employeeList).whenComplete((){
+  Future syncEmployeeListFromServer() async {
+    getEmployeeListApi = getManagerEmployeesList().then((value) {
+      dbController
+          .openDb(tableName: "employee_list", tableType: TableType.employeeList)
+          .whenComplete(() {
         dbController.deleteTableData(tableName: "employee_list");
-        for(var employee in value.employeeList) {
-          dbController.insertData(data: employee.toJson(),tableName: "employee_list", tableType: TableType.employeeList);
+        for (var employee in value.employeeList) {
+          dbController.insertData(
+              data: employee.toJson(),
+              tableName: "employee_list",
+              tableType: TableType.employeeList);
         }
-        setState(() {
-        });
+        setState(() {});
         showToast(msg: "Refreshed");
         // dbController.getData().then((value){
         //   for(var employee in value) {
@@ -133,70 +139,120 @@ class _EmployeeListScreenState extends State<EmployeeListScreen> {
     });
   }
 
-  void showFetchDataDialog(){
-    showDialog(context: context, builder: (context)=>AlertDialog(
-      title: const Text("Sync employee list from server"),
-      actions: [
-        ElevatedButton(onPressed: (){
-          syncEmployeeListFromServer()
-          ..catchError((e)=>showToast(msg: e))
-          ..onError((error, stackTrace) => showToast(msg: error))
-            ..whenComplete(() => Navigator.pop(context));
-        }, child: const Text("Ok")),
-        ElevatedButton(onPressed: (){
-          Navigator.pop(context);
-        }, child: const Text("Cancel")),
-      ],
-    ));
+  void showFetchDataDialog() {
+    showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+              title: const Text("Sync employee list from server"),
+              actions: [
+                ElevatedButton(
+                    onPressed: () {
+                      syncEmployeeListFromServer()
+                        ..catchError((e) => showToast(msg: e))
+                        ..onError((error, stackTrace) => showToast(msg: error))
+                        ..whenComplete(() => Navigator.pop(context));
+                    },
+                    child: const Text("Ok")),
+                ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: const Text("Cancel")),
+              ],
+            ));
   }
 }
 
-class DBExampleScreen extends StatefulWidget {
-  const DBExampleScreen({Key? key}) : super(key: key);
+// class DBExampleScreen extends StatefulWidget {
+//   const DBExampleScreen({Key? key}) : super(key: key);
 
-  @override
-  _DBExampleScreenState createState() => _DBExampleScreenState();
-}
+//   @override
+//   _DBExampleScreenState createState() => _DBExampleScreenState();
+// }
 
-class _DBExampleScreenState extends State<DBExampleScreen> {
-  DbController dbController = DbController();
+// class _DBExampleScreenState extends State<DBExampleScreen> {
+//   DbController dbController = DbController();
 
-  @override
-  void initState() {
-    dbController.openDb(tableName: "employee_list", tableType: TableType.employeeList);
-    super.initState();
-  }
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Column(mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            // ElevatedButton(onPressed: (){
-            //   dbController.getDbPath();
-            // }, child: const Text("Get DB Path"),),
-            ElevatedButton(onPressed: (){
-              dbController.openDb(tableName: "employee_list", tableType: TableType.employeeList);
-            }, child: const Text("Open DB"),),
-            ElevatedButton(onPressed: (){
-              dbController.createTable(tableName: "employee_list", tableType: TableType.employeeList);
-            }, child: const Text("Create Table"),),
-            ElevatedButton(onPressed: (){
-              dbController.insertData(tableName: "employee_list",data: ManagerEmployeeList(aadhar: "aadhar", address: "address", district: "district", email: "email", firstName: "firstName", fkManagerId: 0, id: 0, image: "image", lastName: "lastName", leftEye: "leftEye", phone: "phone", rightEye: "rightEye", state: "state", type: Type.M, village: "village").toJson(), tableType: TableType.employeeList);
-            }, child: const Text("Insert Data"),),
-            ElevatedButton(onPressed: (){
-              dbController.deleteTableData(tableName: "employee_list");
-            }, child: const Text("Delete Table Data"),),
-            ElevatedButton(onPressed: (){
-              dbController.deleteTable(tableName: "employee_list");
-            }, child: const Text("Delete Table"),),
-            ElevatedButton(onPressed: (){
-              dbController.getData(tableName: "employee_list");
-            }, child: const Text("Get Data"),),
-          ],
-        ),
-      ),
-    );
-  }
-}
+//   @override
+//   void initState() {
+//     dbController.openDb(
+//         tableName: "employee_list", tableType: TableType.employeeList);
+//     super.initState();
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       body: Center(
+//         child: Column(
+//           mainAxisAlignment: MainAxisAlignment.center,
+//           crossAxisAlignment: CrossAxisAlignment.center,
+//           children: [
+//             // ElevatedButton(onPressed: (){
+//             //   dbController.getDbPath();
+//             // }, child: const Text("Get DB Path"),),
+//             ElevatedButton(
+//               onPressed: () {
+//                 dbController.openDb(
+//                     tableName: "employee_list",
+//                     tableType: TableType.employeeList);
+//               },
+//               child: const Text("Open DB"),
+//             ),
+//             ElevatedButton(
+//               onPressed: () {
+//                 dbController.createTable(
+//                     tableName: "employee_list",
+//                     tableType: TableType.employeeList);
+//               },
+//               child: const Text("Create Table"),
+//             ),
+//             ElevatedButton(
+//               onPressed: () {
+//                 dbController.insertData(
+//                     tableName: "employee_list",
+//                     data: ManagerEmployeeList(
+//                             aadhar: "aadhar",
+//                             address: "address",
+//                             district: "district",
+//                             email: "email",
+//                             firstName: "firstName",
+//                             fkManagerId: 0,
+//                             id: 0,
+//                             image: "image",
+//                             lastName: "lastName",
+//                             leftEye: "leftEye",
+//                             phone: "phone",
+//                             rightEye: "rightEye",
+//                             state: "state",
+//                             type: Type.M,
+//                             village: "village")
+//                         .toJson(),
+//                     tableType: TableType.employeeList);
+//               },
+//               child: const Text("Insert Data"),
+//             ),
+//             ElevatedButton(
+//               onPressed: () {
+//                 dbController.deleteTableData(tableName: "employee_list");
+//               },
+//               child: const Text("Delete Table Data"),
+//             ),
+//             ElevatedButton(
+//               onPressed: () {
+//                 dbController.deleteTable(tableName: "employee_list");
+//               },
+//               child: const Text("Delete Table"),
+//             ),
+//             ElevatedButton(
+//               onPressed: () {
+//                 dbController.getData(tableName: "employee_list");
+//               },
+//               child: const Text("Get Data"),
+//             ),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+// }

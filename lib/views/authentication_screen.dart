@@ -30,7 +30,9 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
 
   @override
   void initState() {
-    dbController.openDb(tableName: tableName, tableType: TableType.attendance).whenComplete((){
+    dbController
+        .openDb(tableName: tableName, tableType: TableType.attendance)
+        .whenComplete(() {
       // setState(() {
       // });
       // dbController.deleteTable(tableName: tableName);
@@ -66,6 +68,12 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
     //   showToast(msg: event);
     // });
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    dbController.closeDb();
+    super.dispose();
   }
 
   @override
@@ -171,46 +179,55 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
                   customBtn(
                       btnText: 'Submit',
                       onTap: () {
-                        if(bytes!= null) {
+                        if (bytes != null) {
                           setState(() {
-                          isLoading = true;
-                        });
-                        employeeAuth(
-                                context: context,
-                                userId: widget.userId,
-                                eyeImage: bytes!,
-                                attendType: (attendType == AttendType.goingIn)
-                                    ? "in"
-                                    : "out")
-                            .whenComplete(() {
-                          setState(() {
-                            isLoading = false;
+                            isLoading = true;
                           });
-                        });
-                        }else{
+                          employeeAuth(
+                                  context: context,
+                                  userId: widget.userId,
+                                  eyeImage: bytes!,
+                                  attendType: (attendType == AttendType.goingIn)
+                                      ? "in"
+                                      : "out")
+                              .whenComplete(() {
+                            setState(() {
+                              isLoading = false;
+                            });
+                          });
+                        } else {
                           showToast(msg: "complete eye scan then try again");
                         }
                       }),
                   // FutureBuilder(builder: builder)
                   customBtn(
                       btnText: 'Mark Offline',
-                      onTap: () async{
-                        if(bytes != null) {
-                        // if(true) {
+                      onTap: () async {
+                        if (bytes != null) {
+                          // if(true) {
                           setState(() {
                             isLoading = true;
                           });
                           var location = await getLocation();
                           // dbController.deleteTable(tableName: tableName);
-                          dbController.insertData(data: AttendanceModel(
-                              employeeId: widget.userId,
-                              lat: location.latitude.toString(),
-                              long: location.longitude.toString(),
-                              type: (attendType == AttendType.goingIn)
-                                  ? "in"
-                                  : "out",
-                              file: base64Encode(bytes!), markTime: DateTime.now().toString().split('.')[0]).toJson(),
-                              tableName: "attendance", tableType: TableType.attendance).whenComplete(() {
+                          dbController
+                              .insertData(
+                                  data: AttendanceModel(
+                                          employeeId: widget.userId,
+                                          lat: location.latitude.toString(),
+                                          long: location.longitude.toString(),
+                                          type:
+                                              (attendType == AttendType.goingIn)
+                                                  ? "in"
+                                                  : "out",
+                                          file: base64Encode(bytes!),
+                                          markTime: DateTime.now()
+                                              .toString()
+                                              .split('.')[0])
+                                      .toJson(),
+                                  tableName: "attendance",
+                                  tableType: TableType.attendance)
+                              .whenComplete(() {
                             setState(() {
                               isLoading = false;
                             });
@@ -220,22 +237,30 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
                           showToast(msg: "complete eye scan then try again");
                         }
                       }),
-                  customBtn(onTap: (){
-                    setState(() {
-                      isLoading = true;
-                    });
-                    // dbController.deleteTable(tableName: tableName);
-                    dbController.getAttendanceData(tableName: tableName).then((employeeList) => attendanceSync(context: context, employeeList: employeeList).then((value) {
-                      if(value.statusCode==200){
-                        showToast(msg: "Successfully synced");
-                        dbController.deleteTableData(tableName: tableName);
-                      }
-                    }).whenComplete(() {
-                      setState(() {
-                        isLoading = false;
-                      });
-                    }));
-                  }, btnText: "Sync Attendance")
+                  customBtn(
+                      onTap: () {
+                        setState(() {
+                          isLoading = true;
+                        });
+                        // dbController.deleteTable(tableName: tableName);
+                        dbController
+                            .getAttendanceData(tableName: tableName)
+                            .then((employeeList) => attendanceSync(
+                                        context: context,
+                                        employeeList: employeeList)
+                                    .then((value) {
+                                  if (value.statusCode == 200) {
+                                    // showToast(msg: "Successfully synced");
+                                    dbController.deleteTableData(
+                                        tableName: tableName);
+                                  }
+                                }).whenComplete(() {
+                                  setState(() {
+                                    isLoading = false;
+                                  });
+                                }));
+                      },
+                      btnText: "Sync Attendance")
                   // ElevatedButton(
                   //     onPressed: () {
                   //       employeeAuth(
